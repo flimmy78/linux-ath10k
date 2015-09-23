@@ -4729,7 +4729,7 @@ int ieee80211_mgd_assoc(struct ieee80211_sub_if_data *sdata,
 		int q = 0;
 
 		/* Skip CCK rates for 5Ghz band */
-		if (band == IEEE80211_BAND_5GHZ)
+		if (band == NL80211_BAND_5GHZ)
 			msk = msk << 4;
 
 #if 0
