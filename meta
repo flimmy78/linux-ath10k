@@ -1,8 +1,7 @@
 Version: 1
-Previous: 1d93b5e19b52e990cc38ea2c6caa5905a49c5fce
+Previous: 79d2c57c2a30cad5b25ad23abe33980c19978e08
 Head: cd31c89ba35afc0539ae15dced663f37ce69a3e0
 Applied:
-  ath-make-easier-to-enable-more: cd31c89ba35afc0539ae15dced663f37ce69a3e0
 Unapplied:
   wireless-print-error-logs-for: 41dab269b53557373f16e0b1f27f7f1df125e717
   mac80211-extra-debug-info-for: f73114d55cba25d4dd5a794557711d00f8a45032
