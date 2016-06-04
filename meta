@@ -1,11 +1,11 @@
 Version: 1
-Previous: a6808c3b5f938b4150bf7abbe8c3b9719bfb9609
-Head: faae0b899c4ce2b858dccfdf7bcf4cd448128a1b
+Previous: 94578894751571a551263f1e624b9eeddbff45d7
+Head: 71ff4bcda76c8e48d8334fd3cf1c4e3969864b6c
 Applied:
   ath10k-fix-typo-in-logging: 4422785070567b39a5f0980bf5812f38a89a40cb
   ath10k-support-ct-firmware: faae0b899c4ce2b858dccfdf7bcf4cd448128a1b
+  ath10k-support-32-stations: 71ff4bcda76c8e48d8334fd3cf1c4e3969864b6c
 Unapplied:
-  ath10k-support-32-stations: f4276e06c229652c518ff4cf5653d3ae0330af38
   ath10k-add-helper-method-to: 8d9f6135bd57cd99b468be5550db8cb1e4aeb965
   ath10k-request-firmware-flush: 52ea0a4c81a1d8672b95b0d303680d75c5dcef4a
   ath10k-save-firmware-debug-log: 273934ad8acf64016bd660dcb3d0326a2318462b
