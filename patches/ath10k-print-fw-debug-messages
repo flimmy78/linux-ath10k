@@ -1,0 +1,135 @@
+Bottom: fb2894e756d996a3751edd51febeaa78af94000f
+Top:    7b1ebef6b3d1b7a9bcce4feaa4d788e0c7ff22a6
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2014-09-22 10:10:30 -0700
+
+ath10k: print fw debug messages in hex.
+
+This allows user-space tools to decode debug-log
+messages by parsing dmesg or /var/log/messages.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/debug.c b/drivers/net/wireless/ath/ath10k/debug.c
+index f5b062e..042617f 100644
+--- a/drivers/net/wireless/ath/ath10k/debug.c
++++ b/drivers/net/wireless/ath/ath10k/debug.c
+@@ -2915,3 +2915,75 @@ void ath10k_dbg_dump(struct ath10k *ar,
+ EXPORT_SYMBOL(ath10k_dbg_dump);
+ 
+ #endif /* CONFIG_ATH10K_DEBUG */
++
++void ath10k_dbg_print_fw_dbg_buffer(struct ath10k *ar, __le32 *ibuf, int len,
++				    const char* lvl)
++{
++	/* Print out raw hex, external tools can decode if
++	 * they care.
++	 * TODO:  Add ar identifier to messages.
++	 */
++	int q = 0;
++
++	printk("%sATH10K_DBG_BUFFER:\n", lvl);
++	while (q < len) {
++		if (q + 8 <= len) {
++			printk("%sath10k: [%04d]: %08X %08X %08X %08X %08X %08X %08X %08X\n",
++			       lvl, q,
++			       ibuf[q], ibuf[q+1], ibuf[q+2], ibuf[q+3],
++			       ibuf[q+4], ibuf[q+5], ibuf[q+6], ibuf[q+7]);
++			q += 8;
++		}
++		else if (q + 7 <= len) {
++			printk("%sath10k: [%04d]: %08X %08X %08X %08X %08X %08X %08X\n",
++			       lvl, q,
++			       ibuf[q], ibuf[q+1], ibuf[q+2], ibuf[q+3],
++			       ibuf[q+4], ibuf[q+5], ibuf[q+6]);
++			q += 7;
++		}
++		else if (q + 6 <= len) {
++			printk("%sath10k: [%04d]: %08X %08X %08X %08X %08X %08X\n",
++			       lvl, q,
++			       ibuf[q], ibuf[q+1], ibuf[q+2], ibuf[q+3],
++			       ibuf[q+4], ibuf[q+5]);
++			q += 6;
++		}
++		else if (q + 5 <= len) {
++			printk("%sath10k: [%04d]: %08X %08X %08X %08X %08X\n",
++			       lvl, q,
++			       ibuf[q], ibuf[q+1], ibuf[q+2], ibuf[q+3],
++			       ibuf[q+4]);
++			q += 5;
++		}
++		else if (q + 4 <= len) {
++			printk("%sath10k: [%04d]: %08X %08X %08X %08X\n",
++			       lvl, q,
++			       ibuf[q], ibuf[q+1], ibuf[q+2], ibuf[q+3]);
++			q += 4;
++		}
++		else if (q + 3 <= len) {
++			printk("%sath10k: [%04d]: %08X %08X %08X\n",
++			       lvl, q,
++			       ibuf[q], ibuf[q+1], ibuf[q+2]);
++			q += 3;
++		}
++		else if (q + 2 <= len) {
++			printk("%sath10k: [%04d]: %08X %08X\n",
++			       lvl, q,
++			       ibuf[q], ibuf[q+1]);
++			q += 2;
++		}
++		else if (q + 1 <= len) {
++			printk("%sath10k: [%04d]: %08X\n",
++			       lvl, q,
++			       ibuf[q]);
++			q += 1;
++		}
++		else {
++			break;
++		}
++	}/* while */
++
++	printk("%sATH10K_END\n", lvl);
++}
++EXPORT_SYMBOL(ath10k_dbg_print_fw_dbg_buffer);
+diff --git a/drivers/net/wireless/ath/ath10k/debug.h b/drivers/net/wireless/ath/ath10k/debug.h
+index 250d224..3281844 100644
+--- a/drivers/net/wireless/ath/ath10k/debug.h
++++ b/drivers/net/wireless/ath/ath10k/debug.h
+@@ -193,5 +193,7 @@ static inline void ath10k_dbg_save_fw_dbg_buffer(struct ath10k *ar,
+ #endif /* CONFIG_ATH10K_DEBUG */
+ 
+ int ath10k_refresh_peer_stats(struct ath10k *ar);
++void ath10k_dbg_print_fw_dbg_buffer(struct ath10k *ar, __le32 *buffer,
++				    int len, const char* lvl);
+ 
+ #endif /* _DEBUG_H_ */
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 8b00ffe..aff7317 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -1621,6 +1621,9 @@ static void ath10k_pci_dump_dbglog(struct ath10k *ar)
+ 		WARN_ON(len & 0x3);
+ 
+ 		ath10k_dbg_save_fw_dbg_buffer(ar, (__le32 *)(buffer), len >> 2);
++		ath10k_dbg_print_fw_dbg_buffer(ar, (__le32 *)(buffer),
++					       dbuf.length/sizeof(__le32),
++					       KERN_ERR);
+ 		kfree(buffer);
+ 
+ next:
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index 907e715..a691c68 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -2518,7 +2518,9 @@ int ath10k_wmi_event_debug_mesg(struct ath10k *ar, struct sk_buff *skb)
+ 	ath10k_dbg_save_fw_dbg_buffer(ar, ev->messages,
+ 				      (skb->len - 4)/sizeof(__le32));
+ 	spin_unlock_bh(&ar->data_lock);
+-
++	ath10k_dbg_print_fw_dbg_buffer(ar, ev->messages,
++				       (skb->len - 4)/sizeof(__le32),
++				       KERN_INFO);
+ 	return 0;
+ }

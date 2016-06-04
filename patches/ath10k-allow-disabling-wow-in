@@ -1,0 +1,42 @@
+Bottom: c0f0f3a06221b9522f1d7051e7413e4bf582e878
+Top:    03e0d17919c572f6b56a2e64ede76820e556d4c2
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2014-07-01 07:30:38 -0700
+
+ath10k: Allow disabling WoW in firmware.
+
+Saves about 2.5k of RAM in firmware.  Requires CT firmware.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index 08a57c1..00167b4 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -5592,6 +5592,8 @@ static struct sk_buff *ath10k_wmi_10_1_op_gen_init(struct ath10k *ar)
+ 			ath10k_err(ar, "module param nohwcrypt enabled, but firmware does not support this feature.  Disabling swcrypt.\n");
+ 		}
+ 		config.rx_decap_mode |= __cpu_to_le32(ATH10k_USE_TXCOMPL_TXRATE);
++		/* Disable WoW in firmware, could make this module option perhaps? */
++		config.rx_decap_mode |= __cpu_to_le32(ATH10k_DISABLE_WOW);
+ 		config.roam_offload_max_vdev = 0; /* disable roaming */
+ 		config.roam_offload_max_ap_profiles = 0; /* disable roaming */
+ 		config.num_peer_keys = __cpu_to_le32(TARGET_10X_NUM_PEER_KEYS_CT);
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index 3b004d4..a5889fd 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -2169,6 +2169,10 @@ struct wmi_resource_config {
+ 	#define ATH10k_USE_SW_RX_CRYPT    0x10000
+ 	/* Ask firmware to include tx-rate in completion messages. */
+ 	#define ATH10k_USE_TXCOMPL_TXRATE 0x20000
++	/* Disable Wake-on-Wireless logic.  Saves some RAM, for those
++	 * that do not need WoW.
++	 */
++	#define ATH10k_DISABLE_WOW        0x40000
+ 	__le32 rx_decap_mode;
+ 
+ 	/* what is the maximum number of scan requests that can be queued */
