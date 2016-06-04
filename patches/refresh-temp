@@ -1,0 +1,23 @@
+Bottom: 747b4de303c74b0c1704c1742c614f039b8a2fce
+Top:    69d938c0be223e9458d2cb8a26181e22345c5703
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2016-06-04 16:11:27 -0700
+
+Refresh of ath10k-request-firmware-flush
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index cf44bb4..e1ba76f 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -6356,7 +6356,8 @@ static void ath10k_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 	/* If we are CT firmware, ask it to flush all tids on all peers on
+ 	 * all vdevs.  Normal firmware will just crash if you do this.
+ 	 */
+-	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features))
++	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
++		     ar->running_fw->fw_file.fw_features))
+ 		ath10k_wmi_peer_flush(ar, 0xFFFFFFFF, peer_addr, 0xFFFFFFFF);
+ 
+ 	time_left = wait_event_timeout(ar->htt.empty_tx_wq, ({
