@@ -1,6 +1,36 @@
 Version: 1
-Previous: None
+Previous: d70db2aa7b73137e03852d117f20d2f94e940592
 Head: 46addfdf138d85bdd17efb15d737f5e7662b2d10
 Applied:
+  ath-make-easier-to-enable-more: 395d86c7b03e5d1f6aeb46abda789f90905ca067
+  wireless-print-error-logs-for: 8f4992a71e40547fec067d593dfbe5b3f1c2d5b5
+  mac80211-extra-debug-info-for: 1c6dc2bb63421bf8d209bc751451bc52c09a9759
+  wireless-add-pr-err-calls-in: 21a4dac49f9224fc44abcda0470f4c4eaf21797d
+  wireless-improve-dfs-region: d79114efc4392f17799a4d2722fc8484c5e145f2
+  wireless-allow-dynamic: 9fb2ba9d4328aa371acbfa56138e7330483d0ab0
+  mac80211-make-sta-disconnect: 28a4959574ef37a13de87f70f6aae071cfc3d092
+  wifi-don-t-spam-logs-with: 543e4f4156d26081305e9f4c871bc64efa2fb871
+  mac80211-limit-number-of: d27571ce22c61566a59535f91fd1dca4693266fb
+  mac80211-make-un-found-rate: 78630f2e3dc3cffda3f2fa1ca913c6e6d16da7f5
+  mac80211-get-ethtool-stats: e63fae5b52621634ede2f87628e28f4e60364a8f
+  mac80211-fix-pktgen-on-wifi: 58fd6cc609b0300240b00aea06a1f2ca84b81056
+  mac80211-tell-user-why-beacons: 8b11b84ca62e9d531b270d89dda59a3a74a5b27b
+  mac80211-add-precise-time: 5c46b83eaf1c40257e8c4c3bdcbb010cbc11b771
+  wireless-better-regdomain: 7473bf33c1933fe17134f0e8571be2f9d5c95e40
+  mac80211-print-mac-addr-when: 0062d41a1d93aa9edb07f669ec7c7687a1a20281
+  mac80211-print-kernel-logs-for: a942a04cf81827d736799bf3e208748a202ab186
+  cfg80211-print-reasons-for: e99e1414e4ddaa6a54331e2919d24cd97d348775
+  config-kernel-configs-for: 2f2e4648c0a7808c3f8a69224f4f5d627727e7cb
+  ath9k-allow-over-riding-reg: 4630d7ede9f7e5d357da3b1fe6cac0eb293a39f3
+  ath9k-detect-and-work-around: e032c08784c1a51aa7143be5638cf123512e2070
+  ath9k-patch-from-eric-dumazet: 5681c10c7b86e269718a8bb2fe809b119481caf2
+  ath9k-another-debugging-patch: 2ea25838b8699ce4d0f8d34cb946daad8da3ee1d
+  ath10k-fix-typo-in-logging: 23e6f411916a8b1adf48c231a2b13e3d507a3930
+  ath10k-support-ct-firmware: 7cda5205b482109978db9c0211a02a8b53e058ac
+  ath10k-support-32-stations: f4276e06c229652c518ff4cf5653d3ae0330af38
+  ath10k-add-helper-method-to: 8d9f6135bd57cd99b468be5550db8cb1e4aeb965
+  ath10k-request-firmware-flush: 52ea0a4c81a1d8672b95b0d303680d75c5dcef4a
+  ath10k-save-firmware-debug-log: 273934ad8acf64016bd660dcb3d0326a2318462b
+  ath10k-save-firmware-stacks: 46addfdf138d85bdd17efb15d737f5e7662b2d10
 Unapplied:
 Hidden:

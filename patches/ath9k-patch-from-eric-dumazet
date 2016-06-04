@@ -1,0 +1,26 @@
+Bottom: 704ca3f8d7ff1b774e969813d8522a56e6ecea81
+Top:    0c099d3165127d141adbfe782fa05a9f694353ed
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-07-08 13:21:07 -0700
+
+ath9k: Patch from Eric Dumazet..might fix tcp-collapse issue.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath9k/recv.c b/drivers/net/wireless/ath/ath9k/recv.c
+index 32160fc..1ed62c2 100644
+--- a/drivers/net/wireless/ath/ath9k/recv.c
++++ b/drivers/net/wireless/ath/ath9k/recv.c
+@@ -1109,7 +1109,8 @@ int ath_rx_tasklet(struct ath_softc *sc, int flush, bool hp)
+ 		if (sc->rx.frag) {
+ 			int space = skb->len - skb_tailroom(hdr_skb);
+ 
+-			if (pskb_expand_head(hdr_skb, 0, space, GFP_ATOMIC) < 0) {
++			if (space > 0 &&
++			    pskb_expand_head(hdr_skb, 0, space, GFP_ATOMIC) < 0) {
+ 				dev_kfree_skb(skb);
+ 				RX_STAT_INC(rx_oom_err);
+ 				goto requeue_drop_frag;

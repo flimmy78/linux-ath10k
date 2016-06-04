@@ -1,0 +1,41 @@
+Bottom: 864ea06160edf5ac05dfcc27823254f30f355e98
+Top:    40c6ebf2dead2ac9e965220ea3aaf4e231f9fd53
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2014-09-19 10:03:49 -0700
+
+ath10k: support CT firmware flag.
+
+Add placeholder so CT firmware can more easily co-exist with upstream
+kernel.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index 49af624..de9949c 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -236,6 +236,7 @@ static const char *const ath10k_core_fw_feature_str[] = {
+ 	[ATH10K_FW_FEATURE_SUPPORTS_ADAPTIVE_CCA] = "adaptive-cca",
+ 	[ATH10K_FW_FEATURE_MFP_SUPPORT] = "mfp",
+ 	[ATH10K_FW_FEATURE_PEER_FLOW_CONTROL] = "peer-flow-ctrl",
++	[ATH10K_FW_FEATURE_WMI_10X_CT] = "wmi-10.x-CT",
+ };
+ 
+ static unsigned int ath10k_core_get_fw_feature_str(char *buf,
+diff --git a/drivers/net/wireless/ath/ath10k/core.h b/drivers/net/wireless/ath/ath10k/core.h
+index 1852e0e..e7e7dae 100644
+--- a/drivers/net/wireless/ath/ath10k/core.h
++++ b/drivers/net/wireless/ath/ath10k/core.h
+@@ -535,6 +535,9 @@ enum ath10k_fw_features {
+ 	 */
+ 	ATH10K_FW_FEATURE_PEER_FLOW_CONTROL = 13,
+ 
++	/* Firmware from Candela Technologies, enables more VIFs, etc */
++	ATH10K_FW_FEATURE_WMI_10X_CT = 31,
++
+ 	/* keep last */
+ 	ATH10K_FW_FEATURE_COUNT,
+ };

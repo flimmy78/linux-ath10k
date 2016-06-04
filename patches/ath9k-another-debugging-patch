@@ -1,0 +1,28 @@
+Bottom: 0c099d3165127d141adbfe782fa05a9f694353ed
+Top:    e4fb38a114e8445666dd26544956887820544254
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-07-08 15:56:15 -0700
+
+ath9k: Another debugging patch.
+
+Harmless, and unlikely to hit I think.  But if it did,
+it might explain the tcp-collapse bug.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath9k/recv.c b/drivers/net/wireless/ath/ath9k/recv.c
+index 1ed62c2..26d2944 100644
+--- a/drivers/net/wireless/ath/ath9k/recv.c
++++ b/drivers/net/wireless/ath/ath9k/recv.c
+@@ -1109,6 +1109,8 @@ int ath_rx_tasklet(struct ath_softc *sc, int flush, bool hp)
+ 		if (sc->rx.frag) {
+ 			int space = skb->len - skb_tailroom(hdr_skb);
+ 
++			WARN_ON_ONCE(space < 0);
++
+ 			if (space > 0 &&
+ 			    pskb_expand_head(hdr_skb, 0, space, GFP_ATOMIC) < 0) {
+ 				dev_kfree_skb(skb);

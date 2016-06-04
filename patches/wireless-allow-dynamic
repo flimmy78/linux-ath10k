@@ -1,0 +1,30 @@
+Bottom: aafd57909f247e21b281e0d0b6e9b06bc75928a2
+Top:    28e8caa96763f79c07d5fecf59ba042035f2a638
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2014-06-26 11:32:47 -0700
+
+wireless: Allow dynamic interface combinations.
+
+Depending on firmware and/or module parameters, the
+number of vdevs supported may change.  Remove const
+modifier so that code can change the values accordingly
+at run-time.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/include/net/cfg80211.h b/include/net/cfg80211.h
+index 6392167..3ae3030 100644
+--- a/include/net/cfg80211.h
++++ b/include/net/cfg80211.h
+@@ -2948,7 +2948,7 @@ struct ieee80211_iface_limit {
+  *  };
+  */
+ struct ieee80211_iface_combination {
+-	const struct ieee80211_iface_limit *limits;
++	struct ieee80211_iface_limit *limits;
+ 	u32 num_different_channels;
+ 	u16 max_interfaces;
+ 	u8 n_limits;

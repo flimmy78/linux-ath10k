@@ -1,0 +1,25 @@
+Bottom: e4fb38a114e8445666dd26544956887820544254
+Top:    864ea06160edf5ac05dfcc27823254f30f355e98
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2014-12-31 10:38:09 -0800
+
+ath10k: fix typo in logging message
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 6dd1d26..546822c 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -2747,7 +2747,7 @@ static void ath10k_bss_disassoc(struct ieee80211_hw *hw,
+ 
+ 	ret = ath10k_wmi_vdev_down(ar, arvif->vdev_id);
+ 	if (ret)
+-		ath10k_warn(ar, "faield to down vdev %i: %d\n",
++		ath10k_warn(ar, "failed to down vdev %i: %d\n",
+ 			    arvif->vdev_id, ret);
+ 
+ 	arvif->def_wep_key_idx = -1;

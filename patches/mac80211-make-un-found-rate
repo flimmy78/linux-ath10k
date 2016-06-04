@@ -1,0 +1,54 @@
+Bottom: 68036c3b9562d949831a97d1c4a3e694c139f593
+Top:    642296ccf9f7fbde33b5ef67b748d9ca61af5455
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-05-09 11:56:30 -0700
+
+mac80211: Make un-found-rate splat a warn-once.
+
+After that, print it out with net_ratelimit.  We saw a system
+continually hit this warning, for reasons unknown, and it
+seems it bogged the system down enough to make it go OOM.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 5d8c936..a0ce1eb 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -732,14 +732,26 @@ ieee80211_tx_h_rate_ctrl(struct ieee80211_tx_data *tx)
+ 	 * Lets not bother rate control if we're associated and cannot
+ 	 * talk to the sta. This should not happen.
+ 	 */
+-	if (WARN(test_bit(SCAN_SW_SCANNING, &tx->local->scanning) && assoc &&
+-		 !rate_usable_index_exists(sband, &tx->sta->sta),
+-		 "%s: Dropped data frame as no usable bitrate found while "
+-		 "scanning and associated. Target station: "
+-		 "%pM on %d GHz band\n",
+-		 tx->sdata->name, hdr->addr1,
+-		 info->band ? 5 : 2))
++	if (test_bit(SCAN_SW_SCANNING, &tx->local->scanning) && assoc &&
++	    !rate_usable_index_exists(sband, &tx->sta->sta)) {
++		static bool do_once = true;
++		if (do_once) {
++			WARN(1, "%s: Dropped data frame as no usable bitrate found while "
++			     "scanning and associated. Target station: "
++			     "%pM on %d GHz band\n",
++			     tx->sdata->name, hdr->addr1,
++			     info->band ? 5 : 2);
++			do_once = false;
++		}
++		else {
++			net_info_ratelimited("%s: Dropped data frame as no usable bitrate found while "
++					     "scanning and associated. Target station: "
++					     "%pM on %d GHz band\n",
++					     tx->sdata->name, hdr->addr1,
++					     info->band ? 5 : 2);
++		}
+ 		return TX_DROP;
++	}
+ 
+ 	/*
+ 	 * If we're associated with the sta at this point we know we can at

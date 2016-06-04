@@ -1,0 +1,25 @@
+Bottom: 36849e9c7761f50c509b2e1330a7d39367cc544e
+Top:    d3252418140bf0df9cf0ec1baecbe9b468c424aa
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-10-23 13:54:13 -0700
+
+mac80211: Extra debug info for station cleanup case.
+
+
+---
+
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 5ccfdbd..ffc1058 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -960,7 +960,9 @@ static void __sta_info_destroy_part2(struct sta_info *sta)
+ 	if (sta->uploaded) {
+ 		ret = drv_sta_state(local, sdata, sta, IEEE80211_STA_NONE,
+ 				    IEEE80211_STA_NOTEXIST);
+-		WARN_ON_ONCE(ret != 0);
++		if (WARN_ON_ONCE(ret != 0))
++			sdata_info(sdata, "sta-info-destroy: drv-sta-state error: %i, sta: %pM\n",
++				   ret, sta->sta.addr);
+ 	}
+ 
+ 	sta_dbg(sdata, "Removed STA %pM\n", sta->sta.addr);

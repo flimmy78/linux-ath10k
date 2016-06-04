@@ -1,0 +1,32 @@
+Bottom: a5acc3d0b9720a8b2aab72dc838b3105226c7f8e
+Top:    5dccbb6f89106d0469ca80033d6b9576dc60b47d
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2014-09-24 13:35:55 -0700
+
+wireless: better regdomain logging.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index b82fbf7..9617130 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -1695,6 +1695,15 @@ static void wiphy_update_regulatory(struct wiphy *wiphy,
+ 		return;
+ 	}
+ 
++	pr_info("Setting DFS Master region in update_regulatory, was: %c%c %s, new: %c%c %s  lr: %p  regdom: %p\n",
++		lr->alpha2[0],
++		lr->alpha2[1],
++		reg_dfs_region_str(lr->dfs_region),
++		get_cfg80211_regdom()->alpha2[0],
++		get_cfg80211_regdom()->alpha2[1],
++		reg_dfs_region_str(get_cfg80211_regdom()->dfs_region),
++		lr, get_cfg80211_regdom());
++
+ 	lr->dfs_region = get_cfg80211_regdom()->dfs_region;
+ 
+ 	for (band = 0; band < NUM_NL80211_BANDS; band++)

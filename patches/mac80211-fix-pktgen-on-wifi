@@ -1,0 +1,36 @@
+Bottom: d609f0b46f7707c414ca697113819494f2ab032b
+Top:    d784bd3a0bc68fbe26cb3cdac78606a8025957cf
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-05-30 11:47:23 -0700
+
+mac80211: Fix pktgen on wifi interfaces.
+
+Otherwise, you get queue-mismatch splats and stuck
+queues in ath9k.
+
+
+---
+
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index a0ce1eb..a61e29a 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -1716,6 +1716,18 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata,
+ 		}
+ 	}
+ 
++	/* This check needs to go in before the QoS header is set below. */
++	if (skb->priority > 7 ||
++	    skb->queue_mapping != ieee802_1d_to_ac[skb->priority]) {
++		WARN_ONCE(1, "Invalid queue-mapping, priority: %i  queue-mapping: %i.  This is an expected warning if you are using pktgen, but otherwise may indicate a bug.\n",
++			  (int)(skb->priority), (int)(skb->queue_mapping));
++		/* Adjust queue-mapping to match what the wifi stack expects.
++		 * pktgen will just have to set QoS bits accordingly instead
++		 * of trying to set the queue_mapping directly.
++		 */
++		skb_set_queue_mapping(skb, ieee80211_select_queue(sdata, skb));
++	}
++
+ 	ieee80211_set_qos_hdr(sdata, skb);
+ 	ieee80211_tx(sdata, sta, skb, false);
+ }
