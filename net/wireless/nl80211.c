@@ -6104,7 +6104,7 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 
 			if (band < 0 || band >= NUM_NL80211_BANDS) {
 				pr_err("scan:  band %d out of range, num-bands: %d\n",
-				       band, IEEE80211_NUM_BANDS);
+				       band, NUM_NL80211_BANDS);
 				err = -EINVAL;
 				goto out_free;
 			}
