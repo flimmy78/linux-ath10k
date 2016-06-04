@@ -1,5 +1,5 @@
-Bottom: 0c7d903bbd9d596d5278bce1ab43e16367dd7717
-Top:    4cc3c7ed4f972785c34916efc6d2bd245bb2cac6
+Bottom: 74640b8aba1a084b4353207e00a8975f202f538f
+Top:    7e741844063c46d206441fe192cfde98145f0c4b
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2014-06-11 12:48:44 -0700
 
@@ -13,7 +13,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 424ce82..b065f1f 100644
+index e3a7427..c8f543c 100644
 --- a/net/wireless/nl80211.c
 +++ b/net/wireless/nl80211.c
 @@ -6677,32 +6677,48 @@ static int nl80211_start_radar_detection(struct sk_buff *skb,

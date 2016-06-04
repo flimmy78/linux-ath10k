@@ -1,17 +1,17 @@
 Version: 1
-Previous: 63930293c4def4495e0d423717a64f321ee83694
-Head: 6d9a5a38488adbae0953b86eba93fb0640fa2d3c
+Previous: b454e3713c549997c986b182abb2595d8d605106
+Head: e805dbcb118e7f135ebe449c9f0f3c5a7e6c6ada
 Applied:
+  mac80211-extra-debug-info-for: f728e31ad37bcebbb09b0272407d9a8c5b54b451
+  wireless-add-pr-err-calls-in: a7d422e423b47e8f3d1f58605aafa5f77195e013
+  wireless-improve-dfs-region: 42d3b55a5de98ffd78bfc2e41448b9bf4bd338f6
+  wireless-allow-dynamic: ed0bedb599a0d80766ae2d839e9036dfc149bd1d
+  mac80211-make-sta-disconnect: eeaccecf261775afc33b9030204d0545252faa73
+  wifi-don-t-spam-logs-with: e10029d42fc0059b52da08748348be8bbfa4ce91
+  mac80211-limit-number-of: bbd7b5d947deecb8bc749ca86cf38d09c43f0d33
+  mac80211-make-un-found-rate: 8b8e4f84efd4f598ba7e3333d401fa054e738a6d
+  mac80211-get-ethtool-stats: e805dbcb118e7f135ebe449c9f0f3c5a7e6c6ada
 Unapplied:
-  mac80211-extra-debug-info-for: f73114d55cba25d4dd5a794557711d00f8a45032
-  wireless-add-pr-err-calls-in: c5e496b23fd6112751a679cd6e41e1bfafa5f1d9
-  wireless-improve-dfs-region: 7785c99b0d778da468cc23c8faf9397814d5e647
-  wireless-allow-dynamic: 5c19f6b966125df1a2ddba0ffd67ea8b943a8580
-  mac80211-make-sta-disconnect: b12338e4855364ef16d36055184c59eda810d0f1
-  wifi-don-t-spam-logs-with: dd8d25cf8e57b710470d5cbc6d735dd69a520add
-  mac80211-limit-number-of: 91acab73833f415f0ca4cce04a2da90882841c06
-  mac80211-make-un-found-rate: 7b6f5397e305b0efb1d60498e62942070ebcb387
-  mac80211-get-ethtool-stats: 5465a5c9f04a3e6f42c05f9678ae5f8d52d2beb2
   mac80211-fix-pktgen-on-wifi: 3392d62f54984e0a7e69208d764e65be37c6c619
   mac80211-tell-user-why-beacons: efddbe5d95f6b1ae6fc254309423b0a65fc04d66
   mac80211-add-precise-time: 733a7bc4e17a2a69742740e251b0019c6d62157c
