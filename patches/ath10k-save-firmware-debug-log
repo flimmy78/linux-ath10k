@@ -1,5 +1,5 @@
-Bottom: 2873b037e2a0a9d33d58d9d29df4f3f1048c88b7
-Top:    dfa4257b51e9c9f977ca2b799ac58a4e33ad35ae
+Bottom: 69d938c0be223e9458d2cb8a26181e22345c5703
+Top:    e0f59de0e11da5b8853138c11ac110184167d99a
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2013-10-23 15:28:54 -0700
 
@@ -372,7 +372,7 @@ index 8133d7b..16e32d0 100644
  	spin_unlock_bh(&ar->data_lock);
  
 diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
-index 6b3647b..ea340a9 100644
+index a66ac78..1930ebd 100644
 --- a/drivers/net/wireless/ath/ath10k/wmi.c
 +++ b/drivers/net/wireless/ath/ath10k/wmi.c
 @@ -2494,10 +2494,23 @@ void ath10k_wmi_event_echo(struct ath10k *ar, struct sk_buff *skb)

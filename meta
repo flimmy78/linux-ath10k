@@ -1,10 +1,10 @@
 Version: 1
-Previous: 6afee60b22a6309dc1fcaa8a3ff7609594c189d4
-Head: f800a7c41ab1ef82eaa5600ca72af2f405f708ec
+Previous: 6b2722646f19c3c19c585bcf22de87879835ca5d
+Head: d9cc1c9ff70434f76f22e49b9c562799ae0ef867
 Applied:
   ath10k-add-helper-method-to: 283030618afebf2167ba7361e2f836f0bf812935
   ath10k-request-firmware-flush: f800a7c41ab1ef82eaa5600ca72af2f405f708ec
+  ath10k-save-firmware-debug-log: e4890575012a7a457418874a944b6f16860f0bce
+  ath10k-save-firmware-stacks: d9cc1c9ff70434f76f22e49b9c562799ae0ef867
 Unapplied:
-  ath10k-save-firmware-debug-log: 273934ad8acf64016bd660dcb3d0326a2318462b
-  ath10k-save-firmware-stacks: 46addfdf138d85bdd17efb15d737f5e7662b2d10
 Hidden:
