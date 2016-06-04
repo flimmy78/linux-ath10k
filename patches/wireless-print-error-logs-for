@@ -1,5 +1,5 @@
 Bottom: 057177a6def2a78a4bed0ab329f2d3dca17cefa9
-Top:    3f08f3889671961b64da2720a5e842c24b0f657a
+Top:    5dd55bd528eddef0317d511bfda14dcf268cc6e9
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2014-03-24 14:02:32 -0700
 
@@ -15,7 +15,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index d759901..424ce82 100644
+index d759901..e3a7427 100644
 --- a/net/wireless/nl80211.c
 +++ b/net/wireless/nl80211.c
 @@ -5824,8 +5824,11 @@ static int validate_scan_freqs(struct nlattr *freqs)
@@ -100,7 +100,7 @@ index d759901..424ce82 100644
  
  			if (band < 0 || band >= NUM_NL80211_BANDS) {
 +				pr_err("scan:  band %d out of range, num-bands: %d\n",
-+				       band, IEEE80211_NUM_BANDS);
++				       band, NUM_NL80211_BANDS);
  				err = -EINVAL;
  				goto out_free;
  			}
