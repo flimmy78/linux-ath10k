@@ -7871,7 +7871,8 @@ int ath10k_mac_register(struct ath10k *ar)
 		ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
 		break;
 	case ATH10K_FW_WMI_OP_VERSION_10_1:
-		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
+		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
+			     ar->normal_mode_fw.fw_file.fw_features)) {
 			ar->hw->wiphy->iface_combinations = ath10k_10x_ct_if_comb;
 			ar->hw->wiphy->n_iface_combinations =
 				ARRAY_SIZE(ath10k_10x_ct_if_comb);

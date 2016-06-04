@@ -1525,7 +1525,7 @@ static int ath10k_core_init_firmware_features(struct ath10k *ar)
 		ar->max_spatial_stream = WMI_MAX_SPATIAL_STREAM;
 		break;
 	case ATH10K_FW_WMI_OP_VERSION_10_1:
-		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
+		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, fw_file->fw_features)) {
 			ar->max_num_peers = TARGET_10X_NUM_PEERS_CT;
 			ar->max_num_stations = TARGET_10X_NUM_STATIONS;
 			ar->max_num_vdevs = TARGET_10X_NUM_VDEVS_CT;

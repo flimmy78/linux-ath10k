@@ -5535,7 +5535,8 @@ static struct sk_buff *ath10k_wmi_10_1_op_gen_init(struct ath10k *ar)
 	u32 len, val;
 	u32 skid_limit;
 
-	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
+	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
+		     ar->running_fw->fw_file.fw_features)) {
 		config.num_vdevs = __cpu_to_le32(TARGET_10X_NUM_VDEVS_CT);
 		config.num_peers = __cpu_to_le32(TARGET_10X_NUM_PEERS_CT);
 		skid_limit = TARGET_10X_AST_SKID_LIMIT_CT;
