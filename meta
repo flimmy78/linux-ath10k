@@ -1,8 +1,7 @@
 Version: 1
-Previous: 2509cab947752b114d2b06062a343122ac3c285a
+Previous: 63930293c4def4495e0d423717a64f321ee83694
 Head: 6d9a5a38488adbae0953b86eba93fb0640fa2d3c
 Applied:
-  wireless-print-error-logs-for: 6d9a5a38488adbae0953b86eba93fb0640fa2d3c
 Unapplied:
   mac80211-extra-debug-info-for: f73114d55cba25d4dd5a794557711d00f8a45032
   wireless-add-pr-err-calls-in: c5e496b23fd6112751a679cd6e41e1bfafa5f1d9
