@@ -1,6 +1,6 @@
 Version: 1
-Previous: 33661c833734a51da39fcc5f1b053ea31a61a9db
-Head: 91acab73833f415f0ca4cce04a2da90882841c06
+Previous: 2ed27cee827651b9841d1520db4402ee7f44cf87
+Head: 41dab269b53557373f16e0b1f27f7f1df125e717
 Applied:
   pktgen-copy-from-3-19-kernel: b1f6c94cd33c468c08154471217938fa25e67b79
   netdev-add-pktgen-hooks-to-dev: ffd1d6dd0cc5dec40b97b2f00ba3bad3356a8d54
@@ -9,6 +9,7 @@ Applied:
   cifs-authentication-patch-from: 66276b14f483e638bd4aa9160c303b81d60decef
   ath-make-easier-to-enable-more: cd31c89ba35afc0539ae15dced663f37ce69a3e0
   wireless-print-error-logs-for: 41dab269b53557373f16e0b1f27f7f1df125e717
+Unapplied:
   mac80211-extra-debug-info-for: f73114d55cba25d4dd5a794557711d00f8a45032
   wireless-add-pr-err-calls-in: c5e496b23fd6112751a679cd6e41e1bfafa5f1d9
   wireless-improve-dfs-region: 7785c99b0d778da468cc23c8faf9397814d5e647
@@ -16,7 +17,6 @@ Applied:
   mac80211-make-sta-disconnect: b12338e4855364ef16d36055184c59eda810d0f1
   wifi-don-t-spam-logs-with: dd8d25cf8e57b710470d5cbc6d735dd69a520add
   mac80211-limit-number-of: 91acab73833f415f0ca4cce04a2da90882841c06
-Unapplied:
   mac80211-make-un-found-rate: 7b6f5397e305b0efb1d60498e62942070ebcb387
   mac80211-get-ethtool-stats: 5465a5c9f04a3e6f42c05f9678ae5f8d52d2beb2
   mac80211-fix-pktgen-on-wifi: 3392d62f54984e0a7e69208d764e65be37c6c619
