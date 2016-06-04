@@ -1,20 +1,20 @@
 Version: 1
-Previous: 65f3e0062631a0a59b560af3b7ad275bf7c957a1
-Head: e805dbcb118e7f135ebe449c9f0f3c5a7e6c6ada
+Previous: cfddaacaadd72f0a3e9fe5c426a2016774ac7ebc
+Head: bbeb5f9e38bfc31f41f2b25278e5b26055eb3284
 Applied:
+  mac80211-fix-pktgen-on-wifi: dd54d30efea14bc1a37ab17df9d2d137ac83ee4c
+  mac80211-tell-user-why-beacons: a44eadf55c6509f4a837cad26ade16dcc7fb7fd6
+  mac80211-add-precise-time: 74c0c7b0a9d294cfac259a74d08ac5052d474350
+  wireless-better-regdomain: dfa3ed205af4d68202e29f776f2eb5bfc10da021
+  mac80211-print-mac-addr-when: 878da14e7767a12a1c5276a1ecc024b869ebcfec
+  mac80211-print-kernel-logs-for: e1d3cb87ec88a38b78c60a7abcde9adb23aeb444
+  cfg80211-print-reasons-for: f14c6600415f1dd1257ded276db043f5c04d04c9
+  config-kernel-configs-for: 92e052b5178cdb82bf791ba4e878ea2526d3a3a1
+  ath9k-allow-over-riding-reg: 3137070477ee898548186427f1e4337b8b6210fc
+  ath9k-detect-and-work-around: 1daceb222a2701224a26ac44e0feb0b33708669d
+  ath9k-patch-from-eric-dumazet: 69ba7f012cb3c99d92e5ea7c29f4ae1a46f6b895
+  ath9k-another-debugging-patch: bbeb5f9e38bfc31f41f2b25278e5b26055eb3284
 Unapplied:
-  mac80211-fix-pktgen-on-wifi: 3392d62f54984e0a7e69208d764e65be37c6c619
-  mac80211-tell-user-why-beacons: efddbe5d95f6b1ae6fc254309423b0a65fc04d66
-  mac80211-add-precise-time: 733a7bc4e17a2a69742740e251b0019c6d62157c
-  wireless-better-regdomain: 19d9b53d3eccc939447157e41890d47ab108a22d
-  mac80211-print-mac-addr-when: d36ee6387fd6396946392f8e8d073105d2936695
-  mac80211-print-kernel-logs-for: b119fe96d1c09f7ac4a320b283eea47016d845cd
-  cfg80211-print-reasons-for: 85d1a0f3982763a2a7134ce36fcd7278a701991e
-  config-kernel-configs-for: 35d8c2eea5aee7b5442aa5f2c8ce530b71ff560d
-  ath9k-allow-over-riding-reg: a835841c4e77d7244fdc2e3160d762324a4a1dc8
-  ath9k-detect-and-work-around: 7793d01a220a1681bfcd6f473b03758c85be0ced
-  ath9k-patch-from-eric-dumazet: 556798b232bc5393f1fb8c1c34575f298f07c97b
-  ath9k-another-debugging-patch: a27c23b257742d2edabae650a5e880d88b639ba7
   ath10k-fix-typo-in-logging: 23e6f411916a8b1adf48c231a2b13e3d507a3930
   ath10k-support-ct-firmware: 7cda5205b482109978db9c0211a02a8b53e058ac
   ath10k-support-32-stations: f4276e06c229652c518ff4cf5653d3ae0330af38

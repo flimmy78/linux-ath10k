@@ -1,5 +1,5 @@
-Bottom: e3a6b0dc76b8b55127c0f08826d1639b71e06ab4
-Top:    7680cb1ca812be865822567bb031d915365462d9
+Bottom: 0a1d50d00718d151ca9068c2442abe9678bb0839
+Top:    f30f7eb574dc56f8d0da37017bd169daa620723b
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2014-11-21 14:00:29 -0500
 
@@ -14,7 +14,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index b065f1f..b8d18be 100644
+index c8f543c..61ebe7b 100644
 --- a/net/wireless/nl80211.c
 +++ b/net/wireless/nl80211.c
 @@ -1965,8 +1965,10 @@ static int nl80211_parse_chandef(struct cfg80211_registered_device *rdev,
