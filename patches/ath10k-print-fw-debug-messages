@@ -1,5 +1,5 @@
-Bottom: fb2894e756d996a3751edd51febeaa78af94000f
-Top:    7b1ebef6b3d1b7a9bcce4feaa4d788e0c7ff22a6
+Bottom: 21fc1256c673952b3d563855361504be260009ac
+Top:    58f4ead159e89056768ee1aae8b502f849b017b0
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2014-09-22 10:10:30 -0700
 
@@ -14,10 +14,10 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/drivers/net/wireless/ath/ath10k/debug.c b/drivers/net/wireless/ath/ath10k/debug.c
-index f5b062e..042617f 100644
+index d4b52d0..c9bae14 100644
 --- a/drivers/net/wireless/ath/ath10k/debug.c
 +++ b/drivers/net/wireless/ath/ath10k/debug.c
-@@ -2915,3 +2915,75 @@ void ath10k_dbg_dump(struct ath10k *ar,
+@@ -2853,3 +2853,75 @@ void ath10k_dbg_dump(struct ath10k *ar,
  EXPORT_SYMBOL(ath10k_dbg_dump);
  
  #endif /* CONFIG_ATH10K_DEBUG */

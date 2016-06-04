@@ -1,16 +1,15 @@
 Version: 1
-Previous: 59c3083c352881b131b6d7aca3d2401820a668dd
-Head: 58e0c94f3f8d69303400abe320c87ddb49a3f1e8
+Previous: 0cd9bafb7d1843a7264d38ee7c31fbf76f69c6ff
+Head: 656804e624061fa9546b84fc48ecd40ce6fb3699
 Applied:
   ath10k-allow-over-riding: a643b955dc13da4fd0db3e1126c256a6dafabb7f
   ath10k-do-not-ratelimit: bdbb0935e96fb7b1c950d6e241d0767300b28c82
   ath10k-module-param-to-config: b500b9844c532578e75b50cd77bc3fac6752a37a
   ath10k-allow-disabling-wow-in: 2f403bb7c92ae7276388b76be49473443786c736
   ath10k-disable-beacon-miss: 4348a7a7fa322c3256058ed4f1d76aef1d9b1585
-  ath10k-support-up-to-64-vdevs: de30be6dbd6a13cda2f6e0762d8d69e7056096cd
-  ath10k-print-fw-debug-messages: 94a03f86f7e39ff770b1ce2caa946c717d58d856
-  ath10k-make-firmware-text: 7baacb34a0bf9622e1bbc57cd6441b661276def3
-  ath10k-add-additional: f2931774928cd1113dd14b0c9215c301d8ff6b3a
-  ath10k-more-regdom-debugging: 58e0c94f3f8d69303400abe320c87ddb49a3f1e8
+  ath10k-print-fw-debug-messages: 707598c1c8c1117aa279d6afaca9fdcf561d9d8b
+  ath10k-make-firmware-text: 835596514905657c80ddb2b0d90d1b196aafcd1b
+  ath10k-add-additional: 396671b9c7cd48b415899b401a6bb2d360e52a17
+  ath10k-more-regdom-debugging: 656804e624061fa9546b84fc48ecd40ce6fb3699
 Unapplied:
 Hidden:
