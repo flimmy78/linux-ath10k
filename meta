@@ -1,15 +1,15 @@
 Version: 1
-Previous: 2ed27cee827651b9841d1520db4402ee7f44cf87
-Head: 41dab269b53557373f16e0b1f27f7f1df125e717
+Previous: 71a1f3fe5513bd2977e79107b0048f15b6dcfe9a
+Head: 66276b14f483e638bd4aa9160c303b81d60decef
 Applied:
   pktgen-copy-from-3-19-kernel: b1f6c94cd33c468c08154471217938fa25e67b79
   netdev-add-pktgen-hooks-to-dev: ffd1d6dd0cc5dec40b97b2f00ba3bad3356a8d54
   igb-support-rx-fcs-flag: db7e4de74b2e326cbc36ee6be876c81b7258a8e4
   ath-add-time-stamp-to-debug: c2865cdd63a50f9efa9922295b055268a49431dc
   cifs-authentication-patch-from: 66276b14f483e638bd4aa9160c303b81d60decef
+Unapplied:
   ath-make-easier-to-enable-more: cd31c89ba35afc0539ae15dced663f37ce69a3e0
   wireless-print-error-logs-for: 41dab269b53557373f16e0b1f27f7f1df125e717
-Unapplied:
   mac80211-extra-debug-info-for: f73114d55cba25d4dd5a794557711d00f8a45032
   wireless-add-pr-err-calls-in: c5e496b23fd6112751a679cd6e41e1bfafa5f1d9
   wireless-improve-dfs-region: 7785c99b0d778da468cc23c8faf9397814d5e647
