@@ -1,16 +1,7 @@
 Version: 1
-Previous: b454e3713c549997c986b182abb2595d8d605106
+Previous: 65f3e0062631a0a59b560af3b7ad275bf7c957a1
 Head: e805dbcb118e7f135ebe449c9f0f3c5a7e6c6ada
 Applied:
-  mac80211-extra-debug-info-for: f728e31ad37bcebbb09b0272407d9a8c5b54b451
-  wireless-add-pr-err-calls-in: a7d422e423b47e8f3d1f58605aafa5f77195e013
-  wireless-improve-dfs-region: 42d3b55a5de98ffd78bfc2e41448b9bf4bd338f6
-  wireless-allow-dynamic: ed0bedb599a0d80766ae2d839e9036dfc149bd1d
-  mac80211-make-sta-disconnect: eeaccecf261775afc33b9030204d0545252faa73
-  wifi-don-t-spam-logs-with: e10029d42fc0059b52da08748348be8bbfa4ce91
-  mac80211-limit-number-of: bbd7b5d947deecb8bc749ca86cf38d09c43f0d33
-  mac80211-make-un-found-rate: 8b8e4f84efd4f598ba7e3333d401fa054e738a6d
-  mac80211-get-ethtool-stats: e805dbcb118e7f135ebe449c9f0f3c5a7e6c6ada
 Unapplied:
   mac80211-fix-pktgen-on-wifi: 3392d62f54984e0a7e69208d764e65be37c6c619
   mac80211-tell-user-why-beacons: efddbe5d95f6b1ae6fc254309423b0a65fc04d66
