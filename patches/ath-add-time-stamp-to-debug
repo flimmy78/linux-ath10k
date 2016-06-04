@@ -1,0 +1,46 @@
+Bottom: 185cb04d03165af223d3ae479b21d5c5a4c9827e
+Top:    376d2a03eb637f6180adec78c6f01c6e0de704bb
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-11-13 10:14:54 -0800
+
+ath: Add time-stamp to debug messages.
+
+dmesg has no time-stamps, and var/log/messages doesn't have
+high-precision (at least by default), to explicitly add stamps
+to ath debug messages.
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/main.c b/drivers/net/wireless/ath/main.c
+index 338d723..0a2cc5b 100644
+--- a/drivers/net/wireless/ath/main.c
++++ b/drivers/net/wireless/ath/main.c
+@@ -71,6 +71,7 @@ EXPORT_SYMBOL(ath_is_mybeacon);
+ void ath_printk(const char *level, const struct ath_common* common,
+ 		const char *fmt, ...)
+ {
++	struct timeval tv;
+ 	struct va_format vaf;
+ 	va_list args;
+ 
+@@ -79,12 +80,16 @@ void ath_printk(const char *level, const struct ath_common* common,
+ 	vaf.fmt = fmt;
+ 	vaf.va = &args;
+ 
++	do_gettimeofday(&tv);
++
+ 	if (common && common->hw && common->hw->wiphy) {
+-		printk("%sath: %s: %pV",
+-		       level, wiphy_name(common->hw->wiphy), &vaf);
++		printk("%sath: %lu.%lu %s: %pV",
++		       level, tv.tv_sec, tv.tv_usec,
++		       wiphy_name(common->hw->wiphy), &vaf);
+ 		trace_ath_log(common->hw->wiphy, &vaf);
+ 	} else {
+-		printk("%sath: %pV", level, &vaf);
++		printk("%sath: %lu.%lu %pV",
++		       level, tv.tv_sec, tv.tv_usec, &vaf);
+ 	}
+ 
+ 	va_end(args);

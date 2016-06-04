@@ -1,0 +1,174 @@
+Bottom: bea06ff3f412a612f95f8ac24ac8f30f481b5943
+Top:    aa6d2933e753a42d5dfc13e123b5b019e0d6e703
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-01-29 22:48:30 -0800
+
+qdisc: Allow qdiscs to provide backpressure up the stack.
+
+Some qdiscs, in some instances, can reliably detect when they
+are about to drop a packet in the dev_queue_xmit path.  In
+this case, it would be nice to provide backpressure up the
+stack, and NOT free the skb in the qdisc logic.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 1381514..6a69883 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -91,6 +91,7 @@ void netdev_set_default_ethtool_ops(struct net_device *dev,
+ #define NET_XMIT_DROP		0x01	/* skb dropped			*/
+ #define NET_XMIT_CN		0x02	/* congestion notification	*/
+ #define NET_XMIT_POLICED	0x03	/* skb is shot by police	*/
++#define NET_XMIT_BUSY	  	0x04	/* congestion, but skb was NOT freed */
+ #define NET_XMIT_MASK		0x0f	/* qdisc flags in net/sch_generic.h */
+ 
+ /* NET_XMIT_CN is special. It does not guarantee that this packet is lost. It
+@@ -2362,6 +2363,10 @@ int dev_close_many(struct list_head *head, bool unlink);
+ void dev_disable_lro(struct net_device *dev);
+ int dev_loopback_xmit(struct net *net, struct sock *sk, struct sk_buff *newskb);
+ int dev_queue_xmit(struct sk_buff *skb);
++/* Similar to dev_queue_xmit, but if try_no_consume != 0,
++ * it may return NET_XMIT_BUSY and NOT free the skb if it detects congestion
++ */
++int try_dev_queue_xmit(struct sk_buff *skb, int try_no_consume);
+ int dev_queue_xmit_accel(struct sk_buff *skb, void *accel_priv);
+ int register_netdevice(struct net_device *dev);
+ void unregister_netdevice_queue(struct net_device *dev, struct list_head *head);
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index a1fd76c..f540fe6 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -46,6 +46,7 @@ struct qdisc_size_table {
+ 
+ struct Qdisc {
+ 	int 			(*enqueue)(struct sk_buff *skb, struct Qdisc *dev);
++	int 			(*try_enqueue)(struct sk_buff *, struct Qdisc *dev); /* May return NET_XMIT_BUSY and NOT free skb. */
+ 	struct sk_buff *	(*dequeue)(struct Qdisc *dev);
+ 	unsigned int		flags;
+ #define TCQ_F_BUILTIN		1
+@@ -186,6 +187,7 @@ struct Qdisc_ops {
+ 	int			priv_size;
+ 
+ 	int 			(*enqueue)(struct sk_buff *, struct Qdisc *);
++	int 			(*try_enqueue)(struct sk_buff *, struct Qdisc *); /* May return NET_XMIT_BUSY and NOT free skb. */
+ 	struct sk_buff *	(*dequeue)(struct Qdisc *);
+ 	struct sk_buff *	(*peek)(struct Qdisc *);
+ 	unsigned int		(*drop)(struct Qdisc *);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 904ff43..51a105a 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3065,7 +3065,8 @@ static void qdisc_pkt_len_init(struct sk_buff *skb)
+ 
+ static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
+ 				 struct net_device *dev,
+-				 struct netdev_queue *txq)
++				 struct netdev_queue *txq,
++				 bool try_no_consume)
+ {
+ 	spinlock_t *root_lock = qdisc_lock(q);
+ 	bool contended;
+@@ -3107,7 +3108,11 @@ static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
+ 
+ 		rc = NET_XMIT_SUCCESS;
+ 	} else {
+-		rc = q->enqueue(skb, q) & NET_XMIT_MASK;
++		if (try_no_consume && q->try_enqueue)
++			rc = q->try_enqueue(skb, q) & NET_XMIT_MASK;
++		else
++			rc = q->enqueue(skb, q) & NET_XMIT_MASK;
++
+ 		if (qdisc_run_begin(q)) {
+ 			if (unlikely(contended)) {
+ 				spin_unlock(&q->busylock);
+@@ -3313,7 +3318,9 @@ struct netdev_queue *netdev_pick_tx(struct net_device *dev,
+  *      the BH enable code must have IRQs enabled so that it will not deadlock.
+  *          --BLG
+  */
+-static int __dev_queue_xmit(struct sk_buff *skb, void *accel_priv)
++
++static int __dev_queue_xmit(struct sk_buff *skb, void *accel_priv,
++			    int try_no_consume)
+ {
+ 	struct net_device *dev = skb->dev;
+ 	struct netdev_queue *txq;
+@@ -3366,7 +3373,7 @@ static int __dev_queue_xmit(struct sk_buff *skb, void *accel_priv)
+ 
+ 	trace_net_dev_queue(skb);
+ 	if (q->enqueue) {
+-		rc = __dev_xmit_skb(skb, q, dev, txq);
++		rc = __dev_xmit_skb(skb, q, dev, txq, try_no_consume);
+ 		goto out;
+ 	}
+ 
+@@ -3431,13 +3438,19 @@ out:
+ 
+ int dev_queue_xmit(struct sk_buff *skb)
+ {
+-	return __dev_queue_xmit(skb, NULL);
++	return __dev_queue_xmit(skb, NULL, 0);
+ }
+ EXPORT_SYMBOL(dev_queue_xmit);
+ 
++int try_dev_queue_xmit(struct sk_buff *skb, int try_no_consume)
++{
++	return __dev_queue_xmit(skb, NULL, try_no_consume);
++}
++EXPORT_SYMBOL(try_dev_queue_xmit);
++
+ int dev_queue_xmit_accel(struct sk_buff *skb, void *accel_priv)
+ {
+-	return __dev_queue_xmit(skb, accel_priv);
++	return __dev_queue_xmit(skb, accel_priv, 0);
+ }
+ EXPORT_SYMBOL(dev_queue_xmit_accel);
+ 
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 269dd71..53e6dcd 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -451,6 +451,24 @@ static int pfifo_fast_enqueue(struct sk_buff *skb, struct Qdisc *qdisc)
+ 	return qdisc_drop(skb, qdisc);
+ }
+ 
++static int pfifo_fast_try_enqueue(struct sk_buff *skb, struct Qdisc* qdisc)
++{
++	if (skb_queue_len(&qdisc->q) < qdisc_dev(qdisc)->tx_queue_len) {
++		int band = prio2band[skb->priority & TC_PRIO_MAX];
++		struct pfifo_fast_priv *priv = qdisc_priv(qdisc);
++		struct sk_buff_head *list = band2list(priv, band);
++
++		priv->bitmap |= (1 << band);
++		qdisc->q.qlen++;
++		return __qdisc_enqueue_tail(skb, qdisc, list);
++	}
++
++	/* no room to enqueue, tell calling code to back off.  Do NOT free skb, that is
++	 * calling code's to deal with.
++	 */
++	return NET_XMIT_BUSY;
++}
++
+ static struct sk_buff *pfifo_fast_dequeue(struct Qdisc *qdisc)
+ {
+ 	struct pfifo_fast_priv *priv = qdisc_priv(qdisc);
+@@ -527,6 +545,7 @@ struct Qdisc_ops pfifo_fast_ops __read_mostly = {
+ 	.id		=	"pfifo_fast",
+ 	.priv_size	=	sizeof(struct pfifo_fast_priv),
+ 	.enqueue	=	pfifo_fast_enqueue,
++	.try_enqueue	=	pfifo_fast_try_enqueue,
+ 	.dequeue	=	pfifo_fast_dequeue,
+ 	.peek		=	pfifo_fast_peek,
+ 	.init		=	pfifo_fast_init,
+@@ -572,6 +591,7 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
+ 
+ 	sch->ops = ops;
+ 	sch->enqueue = ops->enqueue;
++	sch->try_enqueue = ops->try_enqueue;
+ 	sch->dequeue = ops->dequeue;
+ 	sch->dev_queue = dev_queue;
+ 	dev_hold(dev);

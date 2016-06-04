@@ -1,0 +1,73 @@
+Bottom: d04cceded3d081d0fa3109124a104a2592a19754
+Top:    bea06ff3f412a612f95f8ac24ac8f30f481b5943
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2013-02-06 09:08:33 -0800
+
+netdev: Notify-queue-woken callback hooks.
+
+Allow callers to register to be notified when netdev is available
+for transmit again.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index f45929c..1381514 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -194,6 +194,7 @@ extern struct static_key rps_needed;
+ struct neighbour;
+ struct neigh_parms;
+ struct sk_buff;
++struct pktgen_dev;
+ 
+ struct netdev_hw_addr {
+ 	struct list_head	list;
+@@ -1835,6 +1836,13 @@ struct net_device {
+ 	struct garp_port __rcu	*garp_port;
+ 	struct mrp_port __rcu	*mrp_port;
+ 
++	 /* Callback for when the queue is woken, used by pktgen currently */
++	int                     (*notify_queue_woken)(struct net_device *dev);
++	void* nqw_data; /* To be used by the method above as needed */
++
++	struct pktgen_dev* pkt_dev; /* to quickly find the pkt-gen dev registered with this
++				     * interface, if any.
++				     */
+ 	struct device		dev;
+ 	const struct attribute_group *sysfs_groups[4];
+ 	const struct attribute_group *sysfs_rx_queue_group;
+@@ -2781,6 +2789,9 @@ static inline void netif_tx_schedule_all(struct net_device *dev)
+ 
+ 	for (i = 0; i < dev->num_tx_queues; i++)
+ 		netif_schedule_queue(netdev_get_tx_queue(dev, i));
++
++	if (dev->notify_queue_woken)
++		dev->notify_queue_woken(dev);
+ }
+ 
+ static __always_inline void netif_tx_start_queue(struct netdev_queue *dev_queue)
+@@ -2970,8 +2981,11 @@ static inline void netdev_tx_completed_queue(struct netdev_queue *dev_queue,
+ 	if (dql_avail(&dev_queue->dql) < 0)
+ 		return;
+ 
+-	if (test_and_clear_bit(__QUEUE_STATE_STACK_XOFF, &dev_queue->state))
++	if (test_and_clear_bit(__QUEUE_STATE_STACK_XOFF, &dev_queue->state)) {
+ 		netif_schedule_queue(dev_queue);
++		if (dev_queue->dev->notify_queue_woken)
++			dev_queue->dev->notify_queue_woken(dev_queue->dev);
++	}
+ #endif
+ }
+ 
+@@ -3533,6 +3547,8 @@ static inline void netif_tx_unlock(struct net_device *dev)
+ 		netif_schedule_queue(txq);
+ 	}
+ 	spin_unlock(&dev->tx_global_lock);
++	if (dev->notify_queue_woken)
++		dev->notify_queue_woken(dev);
+ }
+ 
+ static inline void netif_tx_unlock_bh(struct net_device *dev)
