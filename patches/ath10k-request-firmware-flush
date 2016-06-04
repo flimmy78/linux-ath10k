@@ -1,5 +1,5 @@
-Bottom: f14f4429daacd8ea4c6d5842e243e7ff03a5918d
-Top:    2873b037e2a0a9d33d58d9d29df4f3f1048c88b7
+Bottom: 052c67a095bde4900c8fbf20aea8301a747e95ce
+Top:    747b4de303c74b0c1704c1742c614f039b8a2fce
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2014-06-05 14:20:45 -0700
 
@@ -15,7 +15,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index a7c86f9..40c9f50 100644
+index b22fa40..cf44bb4 100644
 --- a/drivers/net/wireless/ath/ath10k/mac.c
 +++ b/drivers/net/wireless/ath/ath10k/mac.c
 @@ -6341,6 +6341,7 @@ static void ath10k_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
