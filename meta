@@ -1,6 +1,6 @@
 Version: 1
-Previous: f07397e87ce7aafce69b347038ffd00f64568985
-Head: 2ea25838b8699ce4d0f8d34cb946daad8da3ee1d
+Previous: c1bbb52e667347011fbb827fd3cb3968557e37df
+Head: 35b44ba02efab26e992642eb02d5dc668940eb0a
 Applied:
   nfs-pass-srcaddr-into-mount: 8df77cc1aca6b652c775d504b074d3ffd2db5314
   nfs-propagate-src-addr-in: b2127c54de5636dc4228454042a66d7cde181fb8
@@ -17,6 +17,7 @@ Applied:
   vlan-tx-busy-sched-backoff: 0bbeb81f4ef68b6ce73e500a3eb6280b8b934502
   net-ensure-tx-watchdog: 34b218ba07779b4e0ffc74efb7b3fe2bb8336be1
   vlan-support-sending-custom: 35b44ba02efab26e992642eb02d5dc668940eb0a
+Unapplied:
   pktgen-copy-from-3-19-kernel: c5618b0c1ca6291ffb5b9141005bbefb5e35908d
   netdev-add-pktgen-hooks-to-dev: 3cdc906a3d81a2e7403a741f82cbda2a645ecd78
   igb-support-rx-fcs-flag: 3736768be0b0c1318fd4d593a9be757b912e8a83
@@ -45,7 +46,6 @@ Applied:
   ath9k-detect-and-work-around: e032c08784c1a51aa7143be5638cf123512e2070
   ath9k-patch-from-eric-dumazet: 5681c10c7b86e269718a8bb2fe809b119481caf2
   ath9k-another-debugging-patch: 2ea25838b8699ce4d0f8d34cb946daad8da3ee1d
-Unapplied:
   ath10k-fix-typo-in-logging: 23e6f411916a8b1adf48c231a2b13e3d507a3930
   ath10k-support-ct-firmware: 7cda5205b482109978db9c0211a02a8b53e058ac
   ath10k-support-32-stations: f4276e06c229652c518ff4cf5653d3ae0330af38
