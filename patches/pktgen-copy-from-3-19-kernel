@@ -1,5 +1,5 @@
 Bottom: 8b020b7d96584f8ae0846b1cdba14c2d55b75892
-Top:    db7045c5359d7c1217bef7e4f2cbed3e0d060b09
+Top:    35f384b602b56188382fb57fc7834ce82df0edb8
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2015-03-30 14:13:35 -0700
 
@@ -14,7 +14,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/net/core/pktgen.c b/net/core/pktgen.c
-index 8b02df0..a86b133 100644
+index 8b02df0..c730d8c 100644
 --- a/net/core/pktgen.c
 +++ b/net/core/pktgen.c
 @@ -69,9 +69,8 @@
@@ -135,11 +135,11 @@ index 8b02df0..a86b133 100644
  #endif
 -	__u32 flags;
 -};
--
--/* flow flag bits */
--#define F_INIT   (1<<0)		/* flow has been initialized */
 +#define VERSION  "pktgen v3.9-ben: Packet Generator for packet performance testing.\n"
  
+-/* flow flag bits */
+-#define F_INIT   (1<<0)		/* flow has been initialized */
+-
 -struct pktgen_dev {
 -	/*
 -	 * Try to keep frequent/infrequent used vars. separated.
@@ -875,8 +875,12 @@ index 8b02df0..a86b133 100644
 +		   pkt_dev->odevname, pkt_dev->cur_queue_map, txq,
 +		   netif_xmit_frozen_or_stopped(txq),
 +		   netif_carrier_ok(pkt_dev->odev));
-+
-+	seq_printf(seq,
+ 
+ 	seq_printf(seq,
+-		   "     started: %lluus  stopped: %lluus idle: %lluus\n",
+-		   (unsigned long long) ktime_to_us(pkt_dev->started_at),
+-		   (unsigned long long) ktime_to_us(stopped),
+-		   (unsigned long long) idle);
 +		   "     rx-pkts: %llu  rx-crc-failed: %llu rx-bytes: %llu(%llu) rx-wrong-conn: %llu alloc_skbs: %llu  oom_alloc_skbs: %llu\n",
 +		   (unsigned long long)pkt_dev->pkts_rcvd,
 +		   (unsigned long long)pkt_dev->rx_crc_failed,
@@ -901,12 +905,8 @@ index 8b02df0..a86b133 100644
 +		   (unsigned long long)pkt_dev->sleeps,
 +		   (unsigned long long)pkt_dev->queue_stopped,
 +		   (unsigned long long)pkt_dev->req_tx_early);
- 
- 	seq_printf(seq,
--		   "     started: %lluus  stopped: %lluus idle: %lluus\n",
--		   (unsigned long long) ktime_to_us(pkt_dev->started_at),
--		   (unsigned long long) ktime_to_us(stopped),
--		   (unsigned long long) idle);
++
++	seq_printf(seq,
 +		   "     Total-Latency: %lli   Total-pkts-since-latency-clear: %llu  Avg-Jitter: %hu\n",
 +		   pkt_dev->total_lat, pkt_dev->pkts_rcvd_since_clear_lat, pkt_dev->running_jitter / 1024);
 +	seq_printf(seq,
@@ -1118,7 +1118,8 @@ index 8b02df0..a86b133 100644
 +		if ((pkt_dev->delay_ns == 0x7FFFFFFF) &&
 +		    value != 0x7FFFFFFF)
 +			pkt_dev->force_new_skb = 1;
-+
+ 
+-		sprintf(pg_result, "OK: rate=%lu", value);
 +		pkt_dev->delay_ns = value;
 +		if ((getRelativeCurNs() + pkt_dev->delay_ns) < pkt_dev->next_tx_ns) {
 +			pkt_dev->next_tx_ns = getRelativeCurNs() + pkt_dev->delay_ns;
@@ -1126,8 +1127,7 @@ index 8b02df0..a86b133 100644
 +
 +		/* Break out of sleep loop if we were in it. */
 +		pkt_dev->accum_delay_ns = 0;
- 
--		sprintf(pg_result, "OK: rate=%lu", value);
++
 +		sprintf(pg_result, "OK: delay=%lluns", (unsigned long long)pkt_dev->delay_ns);
  		return count;
  	}
@@ -1273,40 +1273,31 @@ index 8b02df0..a86b133 100644
  		    (!(pkt_dev->odev->priv_flags & IFF_TX_SKB_SHARING)))
  			return -ENOTSUPP;
  		pkt_dev->burst = value < 1 ? 1 : value;
-@@ -1168,66 +1308,27 @@ static ssize_t pktgen_if_write(struct file *file,
+@@ -1168,52 +1308,13 @@ static ssize_t pktgen_if_write(struct file *file,
  			sprintf(pg_result, "ERROR: node not possible");
  		return count;
  	}
 -	if (!strcmp(name, "xmit_mode")) {
-+	if (!strcmp(name, "flag")) {
- 		char f[32];
+-		char f[32];
 -
- 		memset(f, 0, 32);
- 		len = strn_len(&user_buffer[i], sizeof(f) - 1);
+-		memset(f, 0, 32);
+-		len = strn_len(&user_buffer[i], sizeof(f) - 1);
 -		if (len < 0)
-+		if (len < 0) {
- 			return len;
+-			return len;
 -
-+		}
- 		if (copy_from_user(f, &user_buffer[i], len))
- 			return -EFAULT;
- 		i += len;
-+		if (strcmp(f, "IPSRC_RND") == 0)
-+			pkt_dev->flags |= F_IPSRC_RND;
- 
+-		if (copy_from_user(f, &user_buffer[i], len))
+-			return -EFAULT;
+-		i += len;
+-
 -		if (strcmp(f, "start_xmit") == 0) {
 -			pkt_dev->xmit_mode = M_START_XMIT;
 -		} else if (strcmp(f, "netif_receive") == 0) {
 -			/* clone_skb set earlier, not supported in this mode */
 -			if (pkt_dev->clone_skb > 0)
 -				return -ENOTSUPP;
-+		else if (strcmp(f, "!IPSRC_RND") == 0)
-+			pkt_dev->flags &= ~F_IPSRC_RND;
- 
+-
 -			pkt_dev->xmit_mode = M_NETIF_RECEIVE;
-+		else if (strcmp(f, "TXSIZE_RND") == 0)
-+			pkt_dev->flags |= F_TXSIZE_RND;
- 
+-
 -			/* make sure new packet is allocated every time
 -			 * pktgen_xmit() is called
 -			 */
@@ -1325,32 +1316,18 @@ index 8b02df0..a86b133 100644
 -		sprintf(pg_result, "OK: xmit_mode=%s", f);
 -		return count;
 -	}
--	if (!strcmp(name, "flag")) {
--		char f[32];
--		memset(f, 0, 32);
--		len = strn_len(&user_buffer[i], sizeof(f) - 1);
+ 	if (!strcmp(name, "flag")) {
+ 		char f[32];
+ 		memset(f, 0, 32);
+ 		len = strn_len(&user_buffer[i], sizeof(f) - 1);
 -		if (len < 0)
--			return len;
++		if (len < 0) {
+ 			return len;
 -
--		if (copy_from_user(f, &user_buffer[i], len))
--			return -EFAULT;
--		i += len;
--		if (strcmp(f, "IPSRC_RND") == 0)
--			pkt_dev->flags |= F_IPSRC_RND;
--
--		else if (strcmp(f, "!IPSRC_RND") == 0)
--			pkt_dev->flags &= ~F_IPSRC_RND;
--
--		else if (strcmp(f, "TXSIZE_RND") == 0)
--			pkt_dev->flags |= F_TXSIZE_RND;
--
--		else if (strcmp(f, "!TXSIZE_RND") == 0)
--			pkt_dev->flags &= ~F_TXSIZE_RND;
-+		else if (strcmp(f, "!TXSIZE_RND") == 0)
-+			pkt_dev->flags &= ~F_TXSIZE_RND;
- 
- 		else if (strcmp(f, "IPDST_RND") == 0)
- 			pkt_dev->flags |= F_IPDST_RND;
++		}
+ 		if (copy_from_user(f, &user_buffer[i], len))
+ 			return -EFAULT;
+ 		i += len;
 @@ -1244,6 +1345,20 @@ static ssize_t pktgen_if_write(struct file *file,
  		else if (strcmp(f, "UDPDST_RND") == 0)
  			pkt_dev->flags |= F_UDPDST_RND;
@@ -1408,12 +1385,12 @@ index 8b02df0..a86b133 100644
 -
 -		else if (strcmp(f, "!UDPCSUM") == 0)
 -			pkt_dev->flags &= ~F_UDPCSUM;
--
--		else if (strcmp(f, "NO_TIMESTAMP") == 0)
--			pkt_dev->flags |= F_NO_TIMESTAMP;
 +		else if (strcmp(f, "TCP") == 0)
 +			pkt_dev->flags |= F_TCP;
  
+-		else if (strcmp(f, "NO_TIMESTAMP") == 0)
+-			pkt_dev->flags |= F_NO_TIMESTAMP;
+-
 -		else if (strcmp(f, "!NO_TIMESTAMP") == 0)
 -			pkt_dev->flags &= ~F_NO_TIMESTAMP;
 +		else if (strcmp(f, "!TCP") == 0)
@@ -2183,11 +2160,7 @@ index 8b02df0..a86b133 100644
 +		}
 +	}
 +}
- 
--			hrtimer_cancel(&t.timer);
--		} while (t.task && pkt_dev->running && !signal_pending(current));
--		__set_current_state(TASK_RUNNING);
--		end_time = ktime_get();
++
 +
 +/* Must hold RTNL lock while calling this. */
 +static void clear_nqw_hook(struct pktgen_thread* t, struct net_device* dev) {
@@ -2197,7 +2170,11 @@ index 8b02df0..a86b133 100644
 +	 */
 +	ASSERT_RTNL();
 +	BUG_ON(!t);
-+
+ 
+-			hrtimer_cancel(&t.timer);
+-		} while (t.task && pkt_dev->running && !signal_pending(current));
+-		__set_current_state(TASK_RUNNING);
+-		end_time = ktime_get();
 +	if (dev->rtnl_link_ops && (strcmp(dev->rtnl_link_ops->kind, "macvlan") == 0)) {
 +		struct macvlan_dev *vlan = netdev_priv(dev);
 +		clear_nqw_hook(t, vlan->lowerdev);
@@ -2619,7 +2596,7 @@ index 8b02df0..a86b133 100644
 +		struct tcphdr *th = tcp_hdr(skb);
 +		unsigned int prefix_len = (unsigned int)((unsigned char*)th - skb->data);
 +
-+		if (odev->features & NETIF_F_V4_CSUM) {
++		if (odev->features & (NETIF_F_HW_CSUM | NETIF_F_IP_CSUM)) {
 +			skb->ip_summed = CHECKSUM_PARTIAL;
 +			/* Subtract out IP hdr and before */
 +			th->check = ~tcp_v4_check(skb->len - prefix_len, iph->saddr, iph->daddr, 0);
@@ -2636,7 +2613,7 @@ index 8b02df0..a86b133 100644
 +		//       th->check, skb->csum_start, skb->csum_offset, skb->ip_summed, iph->saddr, iph->daddr,
 +		//       skb->len, skb_headroom(skb), (unsigned int)((unsigned char*)th - skb->data), prefix_len);
 +	} else {
-+		if (odev->features & NETIF_F_V4_CSUM) {
++		if (odev->features & (NETIF_F_HW_CSUM | NETIF_F_IP_CSUM)) {
 +			skb->ip_summed = CHECKSUM_PARTIAL;
 +			skb->csum = 0;
 +			udp4_hwcsum(skb, iph->saddr, iph->daddr);
@@ -2693,13 +2670,7 @@ index 8b02df0..a86b133 100644
  
  	prefetchw(skb->data);
  	skb_reserve(skb, datalen);
-@@ -2856,40 +3298,55 @@ static struct sk_buff *fill_packet_ipv4(struct net_device *odev,
- 		*vlan_encapsulated_proto = htons(ETH_P_IP);
- 	}
- 
--	skb_reset_mac_header(skb);
-+	skb_set_mac_header(skb, 0);
- 	skb_set_network_header(skb, skb->len);
+@@ -2861,35 +3303,50 @@ static struct sk_buff *fill_packet_ipv4(struct net_device *odev,
  	iph = (struct iphdr *) skb_put(skb, sizeof(struct iphdr));
  
  	skb_set_transport_header(skb, skb->len);
@@ -2833,14 +2804,7 @@ index 8b02df0..a86b133 100644
  	skb = pktgen_alloc_skb(odev, pkt_dev, 16);
  	if (!skb) {
  		sprintf(pkt_dev->result, "No memory");
-@@ -2983,20 +3444,19 @@ static struct sk_buff *fill_packet_ipv6(struct net_device *odev,
- 		*vlan_encapsulated_proto = htons(ETH_P_IPV6);
- 	}
- 
--	skb_reset_mac_header(skb);
-+	skb_set_mac_header(skb, 0);
- 	skb_set_network_header(skb, skb->len);
- 	iph = (struct ipv6hdr *) skb_put(skb, sizeof(struct ipv6hdr));
+@@ -2989,14 +3450,13 @@ static struct sk_buff *fill_packet_ipv6(struct net_device *odev,
  
  	skb_set_transport_header(skb, skb->len);
  	udph = (struct udphdr *) skb_put(skb, sizeof(struct udphdr));
@@ -2866,15 +2830,6 @@ index 8b02df0..a86b133 100644
  
  	skb->protocol = protocol;
  	skb->dev = odev;
-@@ -3034,7 +3494,7 @@ static struct sk_buff *fill_packet_ipv6(struct net_device *odev,
- 
- 	if (!(pkt_dev->flags & F_UDPCSUM)) {
- 		skb->ip_summed = CHECKSUM_NONE;
--	} else if (odev->features & (NETIF_F_HW_CSUM | NETIF_F_IPV6_CSUM)) {
-+	} else if (odev->features & NETIF_F_V6_CSUM) {
- 		skb->ip_summed = CHECKSUM_PARTIAL;
- 		skb->csum_start = skb_transport_header(skb) - skb->head;
- 		skb->csum_offset = offsetof(struct udphdr, check);
 @@ -3061,118 +3521,376 @@ static struct sk_buff *fill_packet(struct net_device *odev,
  		return fill_packet_ipv4(odev, pkt_dev);
  }
@@ -3260,7 +3215,8 @@ index 8b02df0..a86b133 100644
 +			 * after all. --Ben
 +			 */
 +			/* pktgen_clear_counters(pkt_dev, 1, "pktgen_run"); */
-+
+ 
+-		msleep_interruptible(100);
 +			/*
 +			 * setup odev and create initial packet.
 +			 */
@@ -3270,8 +3226,7 @@ index 8b02df0..a86b133 100644
 +				pkt_dev->running = 1;	/* Cranke yeself! */
 +				if (pkt_dev->flags & F_USE_REL_TS)
 +					use_rel_ts++;
- 
--		msleep_interruptible(100);
++
 +				pkt_dev->skb = NULL;
 +				pkt_dev->started_at = getCurUs();
 +				/* Transmit first pkt after 20ms to let listener get started. */
@@ -3490,10 +3445,8 @@ index 8b02df0..a86b133 100644
 +		else {
 +			rv = best_blocked;
 +		}
- 	}
--	rcu_read_unlock();
- 
--	return best;
++	}
++
 +	if (!rv) {
 +		if (best_blocked && (best_blocked->next_tx_ns < (now - PG_TRY_TX_ANYWAY_NS))) {
 +			rv = best_blocked;
@@ -3504,8 +3457,10 @@ index 8b02df0..a86b133 100644
 +	}
 +	if (!rv) {
 +		rv = best_blocked;
-+	}
-+
+ 	}
+-	rcu_read_unlock();
+ 
+-	return best;
 +	if (rv) {
 +		/* If best is blocked, we should delay a bit */
 +		if (rv->tx_blocked) {
@@ -3531,10 +3486,10 @@ index 8b02df0..a86b133 100644
  	struct pktgen_dev *pkt_dev;
  
 -	func_enter();
--
--	rcu_read_lock();
 +	pr_debug("pktgen: entering pktgen_stop\n");
  
+-	rcu_read_lock();
+-
 -	list_for_each_entry_rcu(pkt_dev, &t->if_list, list) {
 +	list_for_each_entry(pkt_dev, &t->if_list, list) {
  		pktgen_stop_device(pkt_dev);
@@ -3577,7 +3532,7 @@ index 8b02df0..a86b133 100644
  	list_for_each_safe(q, n, &t->if_list) {
  		cur = list_entry(q, struct pktgen_dev, list);
  
-@@ -3337,161 +4133,235 @@ static void pktgen_rem_all_ifs(struct pktgen_thread *t)
+@@ -3337,161 +4133,231 @@ static void pktgen_rem_all_ifs(struct pktgen_thread *t)
  static void pktgen_rem_thread(struct pktgen_thread *t)
  {
  	/* Remove from the thread list */
@@ -3590,7 +3545,7 @@ index 8b02df0..a86b133 100644
 -	schedule();
 -	pkt_dev->idle_acc += ktime_to_ns(ktime_sub(ktime_get(), idle_start));
 -}
- 
+-
 -static void pktgen_wait_for_skb(struct pktgen_dev *pkt_dev)
 -{
 -	ktime_t idle_start = ktime_get();
@@ -3598,7 +3553,7 @@ index 8b02df0..a86b133 100644
 -	while (atomic_read(&(pkt_dev->skb->users)) != 1) {
 -		if (signal_pending(current))
 -			break;
--
+ 
 -		if (need_resched())
 -			pktgen_resched(pkt_dev);
 -		else
@@ -3720,15 +3675,15 @@ index 8b02df0..a86b133 100644
 -			if (atomic_read(&skb->users) != burst) {
 -				/* skb was queued by rps/rfs or taps,
 -				 * so cannot reuse this skb
+-				 */
+-				atomic_sub(burst - 1, &skb->users);
+-				/* get out of the loop and wait
+-				 * until skb is consumed
 +			pkt_dev->skb = fill_packet(odev, pkt_dev);
 +			if (pkt_dev->skb == NULL) {
 +				/* printk(KERN_ERR "pktgen: ERROR: couldn't "
 +				 *       "allocate skb in fill_packet.\n");
  				 */
--				atomic_sub(burst - 1, &skb->users);
--				/* get out of the loop and wait
--				 * until skb is consumed
--				 */
 -				break;
 +				schedule();
 +				if (unlikely(forced))
@@ -3841,10 +3796,6 @@ index 8b02df0..a86b133 100644
 +			}
 +			pkt_dev->next_tx_ns = getRelativeCurNs() + burst_sofar_ns;
 +			break;
-+		case NETDEV_TX_LOCKED:
-+			cpu_relax();
-+			goto retry_now;
-+
 +		case NET_XMIT_DROP: /* skb has been consumed if we get these next 3 */
 +			pkt_dev->xmit_dropped++;
 +			goto retry_next_time;
@@ -3932,7 +3883,7 @@ index 8b02df0..a86b133 100644
  }
  
  /*
-@@ -3504,37 +4374,86 @@ static int pktgen_thread_worker(void *arg)
+@@ -3504,37 +4370,86 @@ static int pktgen_thread_worker(void *arg)
  	struct pktgen_thread *t = arg;
  	struct pktgen_dev *pkt_dev = NULL;
  	int cpu = t->cpu;
@@ -3957,7 +3908,8 @@ index 8b02df0..a86b133 100644
 +			pktgen_unblock_all_ifs(t);
 +			t->control &= ~(T_WAKE_BLOCKED);
 +		}
-+
+ 
+-		if (unlikely(!pkt_dev && t->control == 0)) {
 +		now = getRelativeCurNs();
 +		pkt_dev = next_to_run(t, now, &next_running_delay);
 +		/* if (pkt_dev) {
@@ -3965,8 +3917,7 @@ index 8b02df0..a86b133 100644
 +		 *	       pkt_dev->ifname, pkt_dev->tx_blocked, now);
 +		 *}
 +		 */
- 
--		if (unlikely(!pkt_dev && t->control == 0)) {
++
 +		if (!pkt_dev &&
 +		    (t->control & (T_STOP | T_RUN | T_REMDEVALL | T_REMDEV))
 +		    == 0) {
@@ -4003,16 +3954,16 @@ index 8b02df0..a86b133 100644
 +				}
 +				/* Been PG_TRY_TX_ANYWAY_NS, Fall through and attempt to transmit anyway. */
 +			}
++
++			/* If the best to run should not run yet, then sleep (or accumulate sleep) */
++			if (now < pkt_dev->next_tx_ns) {
++				/* spin(pkt_dev, pkt_dev->next_tx_us); */
++				u64 next_ipg = pkt_dev->next_tx_ns - now;
  
 -			if (need_resched())
 -				pktgen_resched(pkt_dev);
 -			else
 -				cpu_relax();
-+			/* If the best to run should not run yet, then sleep (or accumulate sleep) */
-+			if (now < pkt_dev->next_tx_ns) {
-+				/* spin(pkt_dev, pkt_dev->next_tx_us); */
-+				u64 next_ipg = pkt_dev->next_tx_ns - now;
-+
 +				/* These will not actually busy-spin now.  Will run as
 +				 * much as 1ms fast, and will sleep in 1ms units, assuming
 +				 * our tick is 1ms.
@@ -4033,7 +3984,7 @@ index 8b02df0..a86b133 100644
  
  		if (t->control & T_STOP) {
  			pktgen_stop(t);
-@@ -3546,6 +4465,11 @@ static int pktgen_thread_worker(void *arg)
+@@ -3546,6 +4461,11 @@ static int pktgen_thread_worker(void *arg)
  			t->control &= ~(T_RUN);
  		}
  
@@ -4045,7 +3996,7 @@ index 8b02df0..a86b133 100644
  		if (t->control & T_REMDEVALL) {
  			pktgen_rem_all_ifs(t);
  			t->control &= ~(T_REMDEVALL);
-@@ -3559,15 +4483,24 @@ static int pktgen_thread_worker(void *arg)
+@@ -3559,15 +4479,24 @@ static int pktgen_thread_worker(void *arg)
  		try_to_freeze();
  	}
  
@@ -4073,7 +4024,7 @@ index 8b02df0..a86b133 100644
  	return 0;
  }
  
-@@ -3577,8 +4510,7 @@ static struct pktgen_dev *pktgen_find_dev(struct pktgen_thread *t,
+@@ -3577,8 +4506,7 @@ static struct pktgen_dev *pktgen_find_dev(struct pktgen_thread *t,
  	struct pktgen_dev *p, *pkt_dev = NULL;
  	size_t len = strlen(ifname);
  
@@ -4083,7 +4034,7 @@ index 8b02df0..a86b133 100644
  		if (strncmp(p->odevname, ifname, len) == 0) {
  			if (p->odevname[len]) {
  				if (exact || p->odevname[len] != '@')
-@@ -3587,9 +4519,6 @@ static struct pktgen_dev *pktgen_find_dev(struct pktgen_thread *t,
+@@ -3587,9 +4515,6 @@ static struct pktgen_dev *pktgen_find_dev(struct pktgen_thread *t,
  			pkt_dev = p;
  			break;
  		}
@@ -4093,7 +4044,7 @@ index 8b02df0..a86b133 100644
  	return pkt_dev;
  }
  
-@@ -3602,31 +4531,25 @@ static int add_dev_to_thread(struct pktgen_thread *t,
+@@ -3602,31 +4527,25 @@ static int add_dev_to_thread(struct pktgen_thread *t,
  {
  	int rv = 0;
  
@@ -4133,7 +4084,7 @@ index 8b02df0..a86b133 100644
  static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
  {
  	struct pktgen_dev *pkt_dev;
-@@ -3637,9 +4560,13 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
+@@ -3637,9 +4556,13 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
  
  	pkt_dev = __pktgen_NN_threads(t->net, ifname, FIND);
  	if (pkt_dev) {
@@ -4148,7 +4099,7 @@ index 8b02df0..a86b133 100644
  
  	pkt_dev = kzalloc_node(sizeof(struct pktgen_dev), GFP_KERNEL, node);
  	if (!pkt_dev)
-@@ -3653,9 +4580,12 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
+@@ -3653,9 +4576,12 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
  		return -ENOMEM;
  	}
  
@@ -4162,7 +4113,7 @@ index 8b02df0..a86b133 100644
  	pkt_dev->count = pg_count_d;
  	pkt_dev->sofar = 0;
  	pkt_dev->udp_src_min = 9;	/* sink port */
-@@ -3670,8 +4600,9 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
+@@ -3670,8 +4596,9 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
  	pkt_dev->svlan_id = 0xffff;
  	pkt_dev->burst = 1;
  	pkt_dev->node = -1;
@@ -4173,7 +4124,7 @@ index 8b02df0..a86b133 100644
  	if (err)
  		goto out1;
  	if (pkt_dev->odev->priv_flags & IFF_TX_SKB_SHARING)
-@@ -3679,8 +4610,9 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
+@@ -3679,8 +4606,9 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
  
  	pkt_dev->entry = proc_create_data(ifname, 0600, t->net->proc_dir,
  					  &pktgen_if_fops, pkt_dev);
@@ -4184,7 +4135,7 @@ index 8b02df0..a86b133 100644
  		       PG_PROC_DIR, ifname);
  		err = -EINVAL;
  		goto out2;
-@@ -3688,7 +4620,6 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
+@@ -3688,7 +4616,6 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
  #ifdef CONFIG_XFRM
  	pkt_dev->ipsmode = XFRM_MODE_TRANSPORT;
  	pkt_dev->ipsproto = IPPROTO_ESP;
@@ -4192,7 +4143,7 @@ index 8b02df0..a86b133 100644
  	/* xfrm tunnel mode needs additional dst to extract outter
  	 * ip header protocol/ttl/id field, here creat a phony one.
  	 * instead of looking for a valid rt, which definitely hurting
-@@ -3713,7 +4644,7 @@ out1:
+@@ -3713,7 +4640,7 @@ out1:
  	return err;
  }
  
@@ -4201,7 +4152,7 @@ index 8b02df0..a86b133 100644
  {
  	struct pktgen_thread *t;
  	struct proc_dir_entry *pe;
-@@ -3722,11 +4653,11 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
+@@ -3722,11 +4649,11 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
  	t = kzalloc_node(sizeof(struct pktgen_thread), GFP_KERNEL,
  			 cpu_to_node(cpu));
  	if (!t) {
@@ -4215,7 +4166,7 @@ index 8b02df0..a86b133 100644
  	t->cpu = cpu;
  
  	INIT_LIST_HEAD(&t->if_list);
-@@ -3739,7 +4670,8 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
+@@ -3739,7 +4666,8 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
  				   cpu_to_node(cpu),
  				   "kpktgend_%d", cpu);
  	if (IS_ERR(p)) {
@@ -4225,7 +4176,7 @@ index 8b02df0..a86b133 100644
  		list_del(&t->th_list);
  		kfree(t);
  		return PTR_ERR(p);
-@@ -3750,7 +4682,7 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
+@@ -3750,7 +4678,7 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
  	pe = proc_create_data(t->tsk->comm, 0600, pn->proc_dir,
  			      &pktgen_thread_fops, t);
  	if (!pe) {
@@ -4234,7 +4185,7 @@ index 8b02df0..a86b133 100644
  		       PG_PROC_DIR, t->tsk->comm);
  		kthread_stop(p);
  		list_del(&t->th_list);
-@@ -3759,7 +4691,6 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
+@@ -3759,7 +4687,6 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
  	}
  
  	t->net = pn;
@@ -4242,7 +4193,7 @@ index 8b02df0..a86b133 100644
  	wake_up_process(p);
  	wait_for_completion(&t->start_done);
  
-@@ -3775,47 +4706,53 @@ static void _rem_dev_from_if_list(struct pktgen_thread *t,
+@@ -3775,47 +4702,53 @@ static void _rem_dev_from_if_list(struct pktgen_thread *t,
  	struct list_head *q, *n;
  	struct pktgen_dev *p;
  
@@ -4307,7 +4258,7 @@ index 8b02df0..a86b133 100644
  	return 0;
  }
  
-@@ -3825,6 +4762,11 @@ static int __net_init pg_net_init(struct net *net)
+@@ -3825,6 +4758,11 @@ static int __net_init pg_net_init(struct net *net)
  	struct proc_dir_entry *pe;
  	int cpu, ret = 0;
  
@@ -4319,7 +4270,7 @@ index 8b02df0..a86b133 100644
  	pn->net = net;
  	INIT_LIST_HEAD(&pn->pktgen_threads);
  	pn->pktgen_exiting = false;
-@@ -3833,9 +4775,10 @@ static int __net_init pg_net_init(struct net *net)
+@@ -3833,9 +4771,10 @@ static int __net_init pg_net_init(struct net *net)
  		pr_warn("cannot create /proc/net/%s\n", PG_PROC_DIR);
  		return -ENODEV;
  	}
@@ -4331,7 +4282,7 @@ index 8b02df0..a86b133 100644
  		ret = -EINVAL;
  		goto remove;
  	}
-@@ -3846,7 +4789,7 @@ static int __net_init pg_net_init(struct net *net)
+@@ -3846,7 +4785,7 @@ static int __net_init pg_net_init(struct net *net)
  		err = pktgen_create_thread(cpu, pn);
  		if (err)
  			pr_warn("Cannot create thread for cpu %d (%d)\n",
@@ -4340,7 +4291,7 @@ index 8b02df0..a86b133 100644
  	}
  
  	if (list_empty(&pn->pktgen_threads)) {
-@@ -3855,6 +4798,8 @@ static int __net_init pg_net_init(struct net *net)
+@@ -3855,6 +4794,8 @@ static int __net_init pg_net_init(struct net *net)
  		goto remove_entry;
  	}
  
@@ -4349,7 +4300,7 @@ index 8b02df0..a86b133 100644
  	return 0;
  
  remove_entry:
-@@ -3875,14 +4820,13 @@ static void __net_exit pg_net_exit(struct net *net)
+@@ -3875,14 +4816,13 @@ static void __net_exit pg_net_exit(struct net *net)
  	pn->pktgen_exiting = true;
  
  	mutex_lock(&pktgen_thread_lock);
@@ -4365,7 +4316,7 @@ index 8b02df0..a86b133 100644
  		kfree(t);
  	}
  
-@@ -3900,7 +4844,6 @@ static struct pernet_operations pg_net_ops = {
+@@ -3900,7 +4840,6 @@ static struct pernet_operations pg_net_ops = {
  static int __init pg_init(void)
  {
  	int ret = 0;
@@ -4373,7 +4324,7 @@ index 8b02df0..a86b133 100644
  	pr_info("%s", version);
  	ret = register_pernet_subsys(&pg_net_ops);
  	if (ret)
-@@ -3909,28 +4852,24 @@ static int __init pg_init(void)
+@@ -3909,28 +4848,24 @@ static int __init pg_init(void)
  	if (ret)
  		unregister_pernet_subsys(&pg_net_ops);
  
