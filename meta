@@ -1,8 +1,9 @@
 Version: 1
-Previous: 7d3b6c26f118b20bc6a7c88e997c28b3c12d7f7d
-Head: c5618b0c1ca6291ffb5b9141005bbefb5e35908d
+Previous: ce4005d3b1b718628334c844a896057504e6acf7
+Head: 680b835caac502ea3126d2ec7eaabcecf72342b3
 Applied:
   pktgen-copy-from-3-19-kernel: c5618b0c1ca6291ffb5b9141005bbefb5e35908d
+  refresh-temp: 680b835caac502ea3126d2ec7eaabcecf72342b3
 Unapplied:
   netdev-add-pktgen-hooks-to-dev: 3cdc906a3d81a2e7403a741f82cbda2a645ecd78
   igb-support-rx-fcs-flag: 3736768be0b0c1318fd4d593a9be757b912e8a83
