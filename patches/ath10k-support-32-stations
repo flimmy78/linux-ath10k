@@ -1,5 +1,5 @@
 Bottom: a61cd335105879d9aed2565ed72dd2e944b16b5c
-Top:    ccb469a9ce048e96ff441a21c55d6062c5a02012
+Top:    7b36af729c37138677f219ec4b7327cca11eb2b1
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2014-01-21 16:23:46 -0800
 
@@ -13,14 +13,14 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
-index de9949c..0854ca6 100644
+index de9949c..e9fb4f9 100644
 --- a/drivers/net/wireless/ath/ath10k/core.c
 +++ b/drivers/net/wireless/ath/ath10k/core.c
 @@ -1525,6 +1525,19 @@ static int ath10k_core_init_firmware_features(struct ath10k *ar)
  		ar->max_spatial_stream = WMI_MAX_SPATIAL_STREAM;
  		break;
  	case ATH10K_FW_WMI_OP_VERSION_10_1:
-+		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
++		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, fw_file->fw_features)) {
 +			ar->max_num_peers = TARGET_10X_NUM_PEERS_CT;
 +			ar->max_num_stations = TARGET_10X_NUM_STATIONS;
 +			ar->max_num_vdevs = TARGET_10X_NUM_VDEVS_CT;
@@ -54,7 +54,7 @@ index aedd898..6c89f2f0 100644
  #define TARGET_10X_NUM_OFFLOAD_REORDER_BUFS	0
  #define TARGET_10X_NUM_PEER_KEYS		2
 diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 546822c..a7c86f9 100644
+index 546822c..b22fa40 100644
 --- a/drivers/net/wireless/ath/ath10k/mac.c
 +++ b/drivers/net/wireless/ath/ath10k/mac.c
 @@ -7482,6 +7482,22 @@ static const struct ieee80211_iface_limit ath10k_10x_if_limits[] = {
@@ -103,11 +103,12 @@ index 546822c..a7c86f9 100644
  /* FIXME: This is not thouroughly tested. These combinations may over- or
   * underestimate hw/fw capabilities.
   */
-@@ -7839,6 +7871,16 @@ int ath10k_mac_register(struct ath10k *ar)
+@@ -7839,6 +7871,17 @@ int ath10k_mac_register(struct ath10k *ar)
  		ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
  		break;
  	case ATH10K_FW_WMI_OP_VERSION_10_1:
-+		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
++		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
++			     ar->normal_mode_fw.fw_file.fw_features)) {
 +			ar->hw->wiphy->iface_combinations = ath10k_10x_ct_if_comb;
 +			ar->hw->wiphy->n_iface_combinations =
 +				ARRAY_SIZE(ath10k_10x_ct_if_comb);
@@ -121,16 +122,17 @@ index 546822c..a7c86f9 100644
  	case ATH10K_FW_WMI_OP_VERSION_10_2_4:
  		ar->hw->wiphy->iface_combinations = ath10k_10x_if_comb;
 diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
-index 2c30032..6b3647b 100644
+index 2c30032..a66ac78 100644
 --- a/drivers/net/wireless/ath/ath10k/wmi.c
 +++ b/drivers/net/wireless/ath/ath10k/wmi.c
-@@ -5533,12 +5533,21 @@ static struct sk_buff *ath10k_wmi_10_1_op_gen_init(struct ath10k *ar)
+@@ -5533,12 +5533,22 @@ static struct sk_buff *ath10k_wmi_10_1_op_gen_init(struct ath10k *ar)
  	struct sk_buff *buf;
  	struct wmi_resource_config_10x config = {};
  	u32 len, val;
 +	u32 skid_limit;
 +
-+	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
++	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
++		     ar->running_fw->fw_file.fw_features)) {
 +		config.num_vdevs = __cpu_to_le32(TARGET_10X_NUM_VDEVS_CT);
 +		config.num_peers = __cpu_to_le32(TARGET_10X_NUM_PEERS_CT);
 +		skid_limit = TARGET_10X_AST_SKID_LIMIT_CT;
