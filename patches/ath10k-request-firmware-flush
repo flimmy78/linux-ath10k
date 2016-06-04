@@ -1,5 +1,5 @@
 Bottom: 052c67a095bde4900c8fbf20aea8301a747e95ce
-Top:    747b4de303c74b0c1704c1742c614f039b8a2fce
+Top:    69d938c0be223e9458d2cb8a26181e22345c5703
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2014-06-05 14:20:45 -0700
 
@@ -15,7 +15,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index b22fa40..cf44bb4 100644
+index b22fa40..e1ba76f 100644
 --- a/drivers/net/wireless/ath/ath10k/mac.c
 +++ b/drivers/net/wireless/ath/ath10k/mac.c
 @@ -6341,6 +6341,7 @@ static void ath10k_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
@@ -26,14 +26,15 @@ index b22fa40..cf44bb4 100644
  
  	/* mac80211 doesn't care if we really xmit queued frames or not
  	 * we'll collect those frames either way if we stop/delete vdevs */
-@@ -6352,6 +6353,12 @@ static void ath10k_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+@@ -6352,6 +6353,13 @@ static void ath10k_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
  	if (ar->state == ATH10K_STATE_WEDGED)
  		goto skip;
  
 +	/* If we are CT firmware, ask it to flush all tids on all peers on
 +	 * all vdevs.  Normal firmware will just crash if you do this.
 +	 */
-+	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features))
++	if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
++		     ar->running_fw->fw_file.fw_features))
 +		ath10k_wmi_peer_flush(ar, 0xFFFFFFFF, peer_addr, 0xFFFFFFFF);
 +
  	time_left = wait_event_timeout(ar->htt.empty_tx_wq, ({
