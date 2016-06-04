@@ -1,36 +1,36 @@
 Version: 1
-Previous: 11ca49e5694cdda0cd2e8076564158dd924782ab
-Head: ffd1d6dd0cc5dec40b97b2f00ba3bad3356a8d54
+Previous: 827ab48f38ecd716a2bd811a433cefbbe78814ba
+Head: a27c23b257742d2edabae650a5e880d88b639ba7
 Applied:
   pktgen-copy-from-3-19-kernel: b1f6c94cd33c468c08154471217938fa25e67b79
   netdev-add-pktgen-hooks-to-dev: ffd1d6dd0cc5dec40b97b2f00ba3bad3356a8d54
+  igb-support-rx-fcs-flag: db7e4de74b2e326cbc36ee6be876c81b7258a8e4
+  ath-add-time-stamp-to-debug: c2865cdd63a50f9efa9922295b055268a49431dc
+  cifs-authentication-patch-from: 66276b14f483e638bd4aa9160c303b81d60decef
+  ath-make-easier-to-enable-more: cd31c89ba35afc0539ae15dced663f37ce69a3e0
+  wireless-print-error-logs-for: 41dab269b53557373f16e0b1f27f7f1df125e717
+  mac80211-extra-debug-info-for: f73114d55cba25d4dd5a794557711d00f8a45032
+  wireless-add-pr-err-calls-in: c5e496b23fd6112751a679cd6e41e1bfafa5f1d9
+  wireless-improve-dfs-region: 7785c99b0d778da468cc23c8faf9397814d5e647
+  wireless-allow-dynamic: 5c19f6b966125df1a2ddba0ffd67ea8b943a8580
+  mac80211-make-sta-disconnect: b12338e4855364ef16d36055184c59eda810d0f1
+  wifi-don-t-spam-logs-with: dd8d25cf8e57b710470d5cbc6d735dd69a520add
+  mac80211-limit-number-of: 91acab73833f415f0ca4cce04a2da90882841c06
+  mac80211-make-un-found-rate: 7b6f5397e305b0efb1d60498e62942070ebcb387
+  mac80211-get-ethtool-stats: 5465a5c9f04a3e6f42c05f9678ae5f8d52d2beb2
+  mac80211-fix-pktgen-on-wifi: 3392d62f54984e0a7e69208d764e65be37c6c619
+  mac80211-tell-user-why-beacons: efddbe5d95f6b1ae6fc254309423b0a65fc04d66
+  mac80211-add-precise-time: 733a7bc4e17a2a69742740e251b0019c6d62157c
+  wireless-better-regdomain: 19d9b53d3eccc939447157e41890d47ab108a22d
+  mac80211-print-mac-addr-when: d36ee6387fd6396946392f8e8d073105d2936695
+  mac80211-print-kernel-logs-for: b119fe96d1c09f7ac4a320b283eea47016d845cd
+  cfg80211-print-reasons-for: 85d1a0f3982763a2a7134ce36fcd7278a701991e
+  config-kernel-configs-for: 35d8c2eea5aee7b5442aa5f2c8ce530b71ff560d
+  ath9k-allow-over-riding-reg: a835841c4e77d7244fdc2e3160d762324a4a1dc8
+  ath9k-detect-and-work-around: 7793d01a220a1681bfcd6f473b03758c85be0ced
+  ath9k-patch-from-eric-dumazet: 556798b232bc5393f1fb8c1c34575f298f07c97b
+  ath9k-another-debugging-patch: a27c23b257742d2edabae650a5e880d88b639ba7
 Unapplied:
-  igb-support-rx-fcs-flag: 3736768be0b0c1318fd4d593a9be757b912e8a83
-  ath-add-time-stamp-to-debug: f92a0d5c493e12104c4fdbd95ba5689da930c7e1
-  cifs-authentication-patch-from: f18cbebe6f34670fbd06ecfc3ea0dab5efc56b1e
-  ath-make-easier-to-enable-more: 395d86c7b03e5d1f6aeb46abda789f90905ca067
-  wireless-print-error-logs-for: 8f4992a71e40547fec067d593dfbe5b3f1c2d5b5
-  mac80211-extra-debug-info-for: 1c6dc2bb63421bf8d209bc751451bc52c09a9759
-  wireless-add-pr-err-calls-in: 21a4dac49f9224fc44abcda0470f4c4eaf21797d
-  wireless-improve-dfs-region: d79114efc4392f17799a4d2722fc8484c5e145f2
-  wireless-allow-dynamic: 9fb2ba9d4328aa371acbfa56138e7330483d0ab0
-  mac80211-make-sta-disconnect: 28a4959574ef37a13de87f70f6aae071cfc3d092
-  wifi-don-t-spam-logs-with: 543e4f4156d26081305e9f4c871bc64efa2fb871
-  mac80211-limit-number-of: d27571ce22c61566a59535f91fd1dca4693266fb
-  mac80211-make-un-found-rate: 78630f2e3dc3cffda3f2fa1ca913c6e6d16da7f5
-  mac80211-get-ethtool-stats: e63fae5b52621634ede2f87628e28f4e60364a8f
-  mac80211-fix-pktgen-on-wifi: 58fd6cc609b0300240b00aea06a1f2ca84b81056
-  mac80211-tell-user-why-beacons: 8b11b84ca62e9d531b270d89dda59a3a74a5b27b
-  mac80211-add-precise-time: 5c46b83eaf1c40257e8c4c3bdcbb010cbc11b771
-  wireless-better-regdomain: 7473bf33c1933fe17134f0e8571be2f9d5c95e40
-  mac80211-print-mac-addr-when: 0062d41a1d93aa9edb07f669ec7c7687a1a20281
-  mac80211-print-kernel-logs-for: a942a04cf81827d736799bf3e208748a202ab186
-  cfg80211-print-reasons-for: e99e1414e4ddaa6a54331e2919d24cd97d348775
-  config-kernel-configs-for: 2f2e4648c0a7808c3f8a69224f4f5d627727e7cb
-  ath9k-allow-over-riding-reg: 4630d7ede9f7e5d357da3b1fe6cac0eb293a39f3
-  ath9k-detect-and-work-around: e032c08784c1a51aa7143be5638cf123512e2070
-  ath9k-patch-from-eric-dumazet: 5681c10c7b86e269718a8bb2fe809b119481caf2
-  ath9k-another-debugging-patch: 2ea25838b8699ce4d0f8d34cb946daad8da3ee1d
   ath10k-fix-typo-in-logging: 23e6f411916a8b1adf48c231a2b13e3d507a3930
   ath10k-support-ct-firmware: 7cda5205b482109978db9c0211a02a8b53e058ac
   ath10k-support-32-stations: f4276e06c229652c518ff4cf5653d3ae0330af38
