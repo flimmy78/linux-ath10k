@@ -2186,11 +2186,12 @@ static void ath10k_peer_assoc_h_rate_overrides(struct ath10k *ar,
 	const struct ieee80211_supported_band *sband;
 	const struct ieee80211_rate *rates;
 	struct cfg80211_chan_def def;
-	enum ieee80211_band band;
+	enum nl80211_band band;
 	u32 ratemask;
 	int i, j;
 
-	if (! test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features))
+	if (! test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
+		       ar->running_fw->fw_file.fw_features))
 		return;
 
 	lockdep_assert_held(&ar->conf_mutex);
@@ -2198,6 +2199,7 @@ static void ath10k_peer_assoc_h_rate_overrides(struct ath10k *ar,
 	if (WARN_ON(ath10k_mac_vif_chan(vif, &def)))
 		return;
 
+	band = def.chan->band;
 	sband = ar->hw->wiphy->bands[band];
 	ratemask = arvif->bitrate_mask.control[band].legacy;
 	rates = sband->bitrates;
@@ -2801,7 +2803,8 @@ static void ath10k_bss_assoc(struct ieee80211_hw *hw,
 
 	rcu_read_unlock();
 
-	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
+	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
+		     ar->running_fw->fw_file.fw_features)) {
 		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
 		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
 		 * firmware to request it.  It is a race either way, but this should make
@@ -2914,7 +2917,8 @@ static int ath10k_station_assoc(struct ath10k *ar,
 		return ret;
 	}
 
-	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
+	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
+		     ar->running_fw->fw_file.fw_features)) {
 		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
 		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
 		 * firmware to request it.  It is a race either way, but this should make

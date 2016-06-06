@@ -6646,7 +6646,8 @@ ath10k_wmi_peer_assoc_fill(struct ath10k *ar, void *buf,
 	u32 vid = arg->vdev_id;
 	u32 ext_flags = 0;
 
-	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
+	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
+		     ar->running_fw->fw_file.fw_features)) {
 		/* Add some CT firmware specific stuff */
 		vid |= (1<<31); /* ext field exists */
 		if (arg->has_rate_overrides) {
