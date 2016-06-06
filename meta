@@ -1,6 +1,16 @@
 Version: 1
-Previous: 7c92ce60adf0f9595f622d0dfb1ec4a14b49829b
+Previous: eab6f28fd857ff228c6fda3269c15a08c3707da3
 Head: 3dedb2a084bd58ae7abd38b5c2b9873dc731128c
 Applied:
+  32-bit-kernel-config-for-4-2: 7b0e11cb1e947d1a66d4155aa8786b5f4e837c6a
+  ath10k-support-setting-debug: 675abadb58263adc899608fe6893a630cc56bd8e
+  ath10k-read-dbglog-buffers: 45be0368bd16c1b9e193c8d97c41136cc5c2d7a6
+  ath10k-mac-add-logging-for: 813b9032fb1d15ebb66c5094dbabcd9959074421
+  ath10k-add-ethtool-counters: 4a24fe0ecec508e88c0264754f0ff618a52959b1
+  ath10k-support-reporting-short: b69b9bab84f8b69c2a3e8619d6115963728d8c4e
+  ath10k-support-override-for: a70276dc7ea1307aca220026b5c72567ec1b2616
+  ath10k-support-ct_ratemask-to: 675ed065fc193f453a2d47ec2c2e960d9b41ea74
+  ath10k-improve-rc-cache: 24dd4df9f15bfbbffc877de41b91e8d96bae8ea0
+  ath10k-fix-b-g-phy-mode: 3dedb2a084bd58ae7abd38b5c2b9873dc731128c
 Unapplied:
 Hidden:

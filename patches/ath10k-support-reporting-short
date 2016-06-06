@@ -1,0 +1,89 @@
+Bottom: 13d9758f906939f705cddf273a7ee18cb68c37b0
+Top:    d616b0a91b8c87d27d362e24645b4bad66d4c843
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2015-08-26 12:19:41 -0700
+
+ath10k: Support reporting short, long retry counters.
+
+This should coorelate to frames that did not receive an ACK, as
+far as I can tell.  Needs some detailed testing with a sniffer
+to be certain.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/core.h b/drivers/net/wireless/ath/ath10k/core.h
+index 8282f53..489f695 100644
+--- a/drivers/net/wireless/ath/ath10k/core.h
++++ b/drivers/net/wireless/ath/ath10k/core.h
+@@ -282,6 +282,8 @@ struct ath10k_fw_stats {
+ 	u16 sw_chainmask_rx;
+ 	u32 sw_opmode;
+ 	u32 sw_rxfilter;
++	u32 short_retries; // RTS packet retries
++	u32 long_retries; // Data packet retries
+ };
+ 
+ #define ATH10K_TPC_TABLE_TYPE_FLAG	1
+diff --git a/drivers/net/wireless/ath/ath10k/debug.c b/drivers/net/wireless/ath/ath10k/debug.c
+index 3128ce0..1625577 100644
+--- a/drivers/net/wireless/ath/ath10k/debug.c
++++ b/drivers/net/wireless/ath/ath10k/debug.c
+@@ -439,6 +439,12 @@ void ath10k_debug_fw_stats_process(struct ath10k *ar, struct sk_buff *skb)
+ 			case SW_RXFILTER:
+ 				sptr->sw_rxfilter = __le32_to_cpu(regdump->regpair[i].reg_val);
+ 				break;
++			case SW_LONG_RETRIES:
++				sptr->long_retries = __le32_to_cpu(regdump->regpair[i].reg_val);
++				break;
++			case SW_SHORT_RETRIES:
++				sptr->short_retries = __le32_to_cpu(regdump->regpair[i].reg_val);
++				break;
+ 			}/* switch */
+ 		}
+ 		complete(&ar->debug.fw_stats_complete);
+@@ -1823,6 +1829,8 @@ static const char ath10k_gstrings_stats[][ETH_GSTRING_LEN] = {
+ 	"d_fw_warm_reset_count",
+ 	"d_fw_cold_reset_count",
+ 	"d_fw_powerup_failed", /* boolean */
++	"d_short_tx_retries", /* RTS tx retries */
++	"d_long_tx_retries", /* DATA tx retries */
+ };
+ 
+ #define ATH10K_SSTATS_LEN ARRAY_SIZE(ath10k_gstrings_stats)
+@@ -1858,6 +1866,7 @@ void ath10k_debug_get_et_stats(struct ieee80211_hw *hw,
+ 	mutex_lock(&ar->conf_mutex);
+ 
+ 	if (ar->state == ATH10K_STATE_ON) {
++		ath10k_refresh_target_regs(ar); /* Request some CT FW stats. */
+ 		ret = ath10k_debug_fw_stats_request(ar);
+ 		if (ret) {
+ 			/* just print a warning and try to use older results */
+@@ -1937,6 +1946,8 @@ void ath10k_debug_get_et_stats(struct ieee80211_hw *hw,
+ 	data[i++] = ar->stats.fw_warm_reset_counter;
+ 	data[i++] = ar->stats.fw_cold_reset_counter;
+ 	data[i++] = ar->fw_powerup_failed;
++	data[i++] = ar->debug.fw_stats.short_retries;
++	data[i++] = ar->debug.fw_stats.long_retries;
+ 
+ 	spin_unlock_bh(&ar->data_lock);
+ 
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index 8d3b8d9..1beaca2 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -4173,8 +4173,11 @@ struct wmi_pdev_stats_peer {
+ #define SW_CHAINMASK         18 /* tx is high 16 bits, rx is low 16 bits */
+ #define SW_OPMODE            19
+ #define SW_RXFILTER          20
++#define SW_LONG_RETRIES      21 /* DATA packet retries */
++#define SW_SHORT_RETRIES     22 /* RTS packet retries */
+ 
+-#define REG_DUMP_COUNT       20 /* max number of registers to dump at once. */
++
++#define REG_DUMP_COUNT       22 /* max number of registers to dump at once. */
+ 
+ struct ath10k_reg_dump_pair {
+ 	__le32 reg_id;

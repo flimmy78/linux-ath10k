@@ -1,0 +1,151 @@
+Bottom: 4fac28b155f6a2d2837f4e4bccadef0e32a2c166
+Top:    56737c4dd3c5a9916517a7c3f2a91b6239b98807
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2015-09-13 22:32:40 -0700
+
+ath10k: Improve RC cache handling & reporting.
+
+Syncs up with latest CT firmware changes.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 23d2c49..0eab551 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -2673,6 +2673,21 @@ static const u32 ath10k_smps_map[] = {
+ 	[WLAN_HT_CAP_SM_PS_DISABLED] = WMI_PEER_SMPS_PS_NONE,
+ };
+ 
++static void ath10k_fetch_rc_txctl(struct ath10k *ar, struct ath10k_vif *arvif,
++				  const u8 *addr)
++{
++	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
++		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
++		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
++		 * firmware to request it.  It is a race either way, but this should make
++		 * it work more often.  Last argument is ignored by firmware.
++		 */
++		ath10k_wmi_peer_set_param(ar, arvif->vdev_id, addr,
++					  WMI_PEER_FETCH_RC, 0);
++		msleep(1);
++	}
++}
++
+ static int ath10k_setup_peer_smps(struct ath10k *ar, struct ath10k_vif *arvif,
+ 				  const u8 *addr,
+ 				  const struct ieee80211_sta_ht_cap *ht_cap)
+@@ -2688,6 +2703,8 @@ static int ath10k_setup_peer_smps(struct ath10k *ar, struct ath10k_vif *arvif,
+ 	if (smps >= ARRAY_SIZE(ath10k_smps_map))
+ 		return -EINVAL;
+ 
++	ath10k_fetch_rc_txctl(ar, arvif, addr);
++
+ 	return ath10k_wmi_peer_set_param(ar, arvif->vdev_id, addr,
+ 					 WMI_PEER_SMPS_STATE,
+ 					 ath10k_smps_map[smps]);
+@@ -2801,16 +2818,7 @@ static void ath10k_bss_assoc(struct ieee80211_hw *hw,
+ 
+ 	rcu_read_unlock();
+ 
+-	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
+-		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
+-		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
+-		 * firmware to request it.  It is a race either way, but this should make
+-		 * it work more often.  Last argument is ignored by firmware.
+-		 */
+-		ath10k_wmi_peer_set_param(ar, arvif->vdev_id, ap_sta->addr,
+-					  WMI_PEER_FETCH_RC, 0);
+-		msleep(1);
+-	}
++	ath10k_fetch_rc_txctl(ar, arvif, ap_sta->addr);
+ 
+ 	ret = ath10k_wmi_peer_assoc(ar, &peer_arg);
+ 	if (ret) {
+@@ -2914,16 +2922,7 @@ static int ath10k_station_assoc(struct ath10k *ar,
+ 		return ret;
+ 	}
+ 
+-	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
+-		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
+-		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
+-		 * firmware to request it.  It is a race either way, but this should make
+-		 * it work more often.  Last argument is ignored by firmware.
+-		 */
+-		ath10k_wmi_peer_set_param(ar, arvif->vdev_id, sta->addr,
+-					  WMI_PEER_FETCH_RC, 0);
+-		msleep(1);
+-	}
++	ath10k_fetch_rc_txctl(ar, arvif, sta->addr);
+ 
+ 	ret = ath10k_wmi_peer_assoc(ar, &peer_arg);
+ 	if (ret) {
+@@ -5833,6 +5832,11 @@ static void ath10k_sta_rc_update_wk(struct work_struct *wk)
+ 	}
+ 
+ 	if (changed & IEEE80211_RC_SMPS_CHANGED) {
++		static int hack_me_once = 1;
++		if (hack_me_once) {
++			ath10k_fetch_rc_txctl(ar, arvif, sta->addr);
++			hack_me_once = 0;
++		}
+ 		ath10k_dbg(ar, ATH10K_DBG_MAC, "mac update sta %pM smps %d\n",
+ 			   sta->addr, smps);
+ 
+@@ -5844,6 +5848,7 @@ static void ath10k_sta_rc_update_wk(struct work_struct *wk)
+ 	}
+ 
+ 	if (changed & IEEE80211_RC_SUPP_RATES_CHANGED ||
++	    changed & IEEE80211_RC_SMPS_CHANGED ||
+ 	    changed & IEEE80211_RC_NSS_CHANGED) {
+ 		ath10k_dbg(ar, ATH10K_DBG_MAC, "mac update sta %pM supp rates/nss\n",
+ 			   sta->addr);
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index b9cd219..f311a32 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -3126,6 +3126,9 @@ ath10k_wmi_op_pull_peer_kick_ev(struct ath10k *ar, struct sk_buff *skb,
+ 	skb_pull(skb, sizeof(*ev));
+ 	arg->mac_addr = ev->peer_macaddr.addr;
+ 
++	/* CT Firmware may sneak in some info in the un-used space. */
++	arg->unused_hi = __le32_to_cpu(ev->peer_macaddr.word1) >> 16;
++
+ 	return 0;
+ }
+ 
+@@ -3154,6 +3157,19 @@ void ath10k_wmi_event_peer_sta_kickout(struct ath10k *ar, struct sk_buff *skb)
+ 		goto exit;
+ 	}
+ 
++	if (arg.unused_hi & (1<<15)) {
++		/* CT Firmware is trying to tell us that assoc attempt failed,
++		 * most likely because ratectrl object could not be found in local
++		 * cache (it was probably still written out to the host RAM cache).
++		 */
++		ath10k_warn(ar, "kickout:  assoc failed, no txRateCtl found in local cache for STA %pM\n",
++			    arg.mac_addr);
++		/* It would be nice if we could just re-flush to the firmware, but I don't
++		 * see a clean way do handle that..so just warn and report a kickout event.
++		 * At least sometimes that may cause peer to be reconfigured...
++		 */
++	}
++
+ 	ieee80211_report_low_ack(sta, 10);
+ 
+ exit:
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index b2c312d..ec0a4b6 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -6316,6 +6316,7 @@ struct wmi_vdev_start_ev_arg {
+ 
+ struct wmi_peer_kick_ev_arg {
+ 	const u8 *mac_addr;
++	u16 unused_hi; /* top 16 bits of 47-32, used to pass info back to host by CT firmware */
+ };
+ 
+ struct wmi_swba_ev_arg {
