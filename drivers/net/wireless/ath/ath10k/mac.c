@@ -2570,8 +2570,8 @@ static bool ath10k_mac_sta_has_ofdm_only(struct ieee80211_vif *vif,
 					 struct ieee80211_sta *sta)
 {
 	struct ath10k_vif *arvif = ath10k_vif_to_arvif(vif);
-	u32 msk = arvif->bitrate_mask.control[IEEE80211_BAND_2GHZ].legacy &
-		sta->supp_rates[IEEE80211_BAND_2GHZ];
+	u32 msk = arvif->bitrate_mask.control[NL80211_BAND_2GHZ].legacy &
+		sta->supp_rates[NL80211_BAND_2GHZ];
 	/* We have 12 bits of legacy rates, first 4 are /b (CCK) rates. */
 	return (msk & 0xfff) == 0xff0;
 }
@@ -2580,8 +2580,8 @@ static bool ath10k_mac_sta_has_ofdm_and_cck(struct ieee80211_vif *vif,
 					    struct ieee80211_sta *sta)
 {
 	struct ath10k_vif *arvif = ath10k_vif_to_arvif(vif);
-	u32 msk = arvif->bitrate_mask.control[IEEE80211_BAND_2GHZ].legacy &
-		sta->supp_rates[IEEE80211_BAND_2GHZ];
+	u32 msk = arvif->bitrate_mask.control[NL80211_BAND_2GHZ].legacy &
+		sta->supp_rates[NL80211_BAND_2GHZ];
 	/* We have 12 bits of legacy rates, first 4 are /b (CCK) rates. */
 	return (msk & 0xfff) == 0xfff;
 }
