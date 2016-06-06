@@ -1,0 +1,26 @@
+Bottom: c97a6e5b1aba04fc4916700f219e069d1059c32e
+Top:    8e86d6b2175da927b43f62ee90c1c59cb91b8b00
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2016-02-04 15:24:51 -0800
+
+ath10k: print baud & pin for debug uart.
+
+Printing the baud and pin can help the user verify how
+the firmware is being configured.
+
+
+---
+
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index d294f88..6412b35 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -1437,7 +1437,8 @@ static int ath10k_init_uart(struct ath10k *ar)
+ 		return ret;
+ 	}
+ 
+-	ath10k_info(ar, "UART prints enabled\n");
++	ath10k_info(ar, "UART prints enabled: 19200, tx-pin: %d\n",
++		    ar->hw_params.uart_pin);
+ 	return 0;
+ }

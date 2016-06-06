@@ -1,6 +1,8 @@
 Version: 1
-Previous: e6245f93920c9ead43f248915dbc7cbeeb4b1a90
+Previous: e826b4747db12f658b727843533d31643621999a
 Head: 6ed107fcc05da01a09868386ec681f80208c8166
 Applied:
+  ath10k-support-more-than-one: e3a434365c17f537659b15be1337bc703fd3e1fd
+  ath10k-print-baud-pin-for: 6ed107fcc05da01a09868386ec681f80208c8166
 Unapplied:
 Hidden:
