@@ -8538,7 +8538,8 @@ int ath10k_mac_register(struct ath10k *ar)
 		}
 		break;
 	case ATH10K_FW_WMI_OP_VERSION_10_4:
-		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
+		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
+			     ar->running_fw->fw_file.fw_features)) {
 			ath10k_10_4_ct_if_comb[0].limits[0].max =
 				ar->max_num_vdevs;
 			ath10k_10_4_ct_if_comb[0].max_interfaces =
@@ -8553,7 +8554,8 @@ int ath10k_mac_register(struct ath10k *ar)
 			ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
 
 			/* CT firmware can do tx-sw-crypt if properly configured */
-			if (test_bit(ATH10K_FW_FEATURE_CT_RXSWCRYPT, ar->fw_features) &&
+			if (test_bit(ATH10K_FW_FEATURE_CT_RXSWCRYPT,
+				     ar->running_fw->fw_file.fw_features) &&
 			    ath10k_modparam_nohwcrypt)
 				__clear_bit(IEEE80211_HW_SW_CRYPTO_CONTROL, ar->hw->flags);
 		} else {
