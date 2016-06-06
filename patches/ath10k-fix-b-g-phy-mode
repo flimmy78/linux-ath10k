@@ -1,5 +1,5 @@
 Bottom: 06d6ef7166787f1f0abcff1ff20789d3d281e20e
-Top:    48495f2d9f3f6795b08148e5aa69ce8b68b154c6
+Top:    65364be4ca2d87388523a3fce48044a39c761768
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2015-09-14 16:38:50 -0700
 
@@ -14,7 +14,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 894fe90..a1b8f44 100644
+index 894fe90..5350def 100644
 --- a/drivers/net/wireless/ath/ath10k/mac.c
 +++ b/drivers/net/wireless/ath/ath10k/mac.c
 @@ -2566,10 +2566,24 @@ static void ath10k_peer_assoc_h_qos(struct ath10k *ar,
@@ -28,8 +28,8 @@ index 894fe90..a1b8f44 100644
 -	return sta->supp_rates[NL80211_BAND_2GHZ] >>
 -	       ATH10K_MAC_FIRST_OFDM_RATE_IDX;
 +	struct ath10k_vif *arvif = ath10k_vif_to_arvif(vif);
-+	u32 msk = arvif->bitrate_mask.control[IEEE80211_BAND_2GHZ].legacy &
-+		sta->supp_rates[IEEE80211_BAND_2GHZ];
++	u32 msk = arvif->bitrate_mask.control[NL80211_BAND_2GHZ].legacy &
++		sta->supp_rates[NL80211_BAND_2GHZ];
 +	/* We have 12 bits of legacy rates, first 4 are /b (CCK) rates. */
 +	return (msk & 0xfff) == 0xff0;
 +}
@@ -38,8 +38,8 @@ index 894fe90..a1b8f44 100644
 +					    struct ieee80211_sta *sta)
 +{
 +	struct ath10k_vif *arvif = ath10k_vif_to_arvif(vif);
-+	u32 msk = arvif->bitrate_mask.control[IEEE80211_BAND_2GHZ].legacy &
-+		sta->supp_rates[IEEE80211_BAND_2GHZ];
++	u32 msk = arvif->bitrate_mask.control[NL80211_BAND_2GHZ].legacy &
++		sta->supp_rates[NL80211_BAND_2GHZ];
 +	/* We have 12 bits of legacy rates, first 4 are /b (CCK) rates. */
 +	return (msk & 0xfff) == 0xfff;
  }
