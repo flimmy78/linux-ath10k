@@ -1,5 +1,5 @@
-Bottom: 56737c4dd3c5a9916517a7c3f2a91b6239b98807
-Top:    f11167a0dc9ca93417fb0c4f873d2f18bd7251b0
+Bottom: 06d6ef7166787f1f0abcff1ff20789d3d281e20e
+Top:    48495f2d9f3f6795b08148e5aa69ce8b68b154c6
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2015-09-14 16:38:50 -0700
 
@@ -14,10 +14,10 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 0eab551..de05e1d 100644
+index 894fe90..a1b8f44 100644
 --- a/drivers/net/wireless/ath/ath10k/mac.c
 +++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -2564,10 +2564,24 @@ static void ath10k_peer_assoc_h_qos(struct ath10k *ar,
+@@ -2566,10 +2566,24 @@ static void ath10k_peer_assoc_h_qos(struct ath10k *ar,
  		   arvif->ar->wmi.peer_flags->qos));
  }
  
@@ -45,7 +45,7 @@ index 0eab551..de05e1d 100644
  }
  
  static void ath10k_peer_assoc_h_phymode(struct ath10k *ar,
-@@ -2603,8 +2617,10 @@ static void ath10k_peer_assoc_h_phymode(struct ath10k *ar,
+@@ -2605,8 +2619,10 @@ static void ath10k_peer_assoc_h_phymode(struct ath10k *ar,
  				phymode = MODE_11NG_HT40;
  			else
  				phymode = MODE_11NG_HT20;
@@ -57,7 +57,7 @@ index 0eab551..de05e1d 100644
  		} else {
  			phymode = MODE_11B;
  		}
-@@ -2637,8 +2653,9 @@ static void ath10k_peer_assoc_h_phymode(struct ath10k *ar,
+@@ -2639,8 +2655,9 @@ static void ath10k_peer_assoc_h_phymode(struct ath10k *ar,
  		break;
  	}
  
