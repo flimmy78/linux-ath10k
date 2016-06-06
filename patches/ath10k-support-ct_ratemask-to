@@ -1,5 +1,5 @@
 Bottom: 5424a5bf8610845bae833d7dbe06759d590b3874
-Top:    4fac28b155f6a2d2837f4e4bccadef0e32a2c166
+Top:    a461d97c588acdb78404762a22265f5392152723
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2015-09-13 18:07:01 -0700
 
@@ -17,6 +17,18 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 
 ---
 
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index 5b1ea99..f4c694e 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -239,6 +239,7 @@ static const char *const ath10k_core_fw_feature_str[] = {
+ 	[ATH10K_FW_FEATURE_WMI_10X_CT] = "wmi-10.x-CT",
+ 	[ATH10K_FW_FEATURE_CT_RXSWCRYPT] = "rxswcrypt-CT",
+ 	[ATH10K_FW_FEATURE_HAS_TXSTATUS_NOACK] = "txstatus-noack",
++	[ATH10K_FW_FEATURE_CT_RATEMASK] = "ct-ratemask",
+ };
+ 
+ static unsigned int ath10k_core_get_fw_feature_str(char *buf,
 diff --git a/drivers/net/wireless/ath/ath10k/core.h b/drivers/net/wireless/ath/ath10k/core.h
 index 31c85fc..8eca308 100644
 --- a/drivers/net/wireless/ath/ath10k/core.h
@@ -35,10 +47,10 @@ index 31c85fc..8eca308 100644
  	ATH10K_FW_FEATURE_COUNT,
  };
 diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index b536fb1..23d2c49 100644
+index b536fb1..cf22540 100644
 --- a/drivers/net/wireless/ath/ath10k/mac.c
 +++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -2166,6 +2166,87 @@ ath10k_peer_assoc_h_vht_masked(const u16 vht_mcs_mask[NL80211_VHT_NSS_MAX])
+@@ -2166,6 +2166,89 @@ ath10k_peer_assoc_h_vht_masked(const u16 vht_mcs_mask[NL80211_VHT_NSS_MAX])
  	return true;
  }
  
@@ -62,11 +74,12 @@ index b536fb1..23d2c49 100644
 +	const struct ieee80211_supported_band *sband;
 +	const struct ieee80211_rate *rates;
 +	struct cfg80211_chan_def def;
-+	enum ieee80211_band band;
++	enum nl80211_band band;
 +	u32 ratemask;
 +	int i, j;
 +
-+	if (! test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features))
++	if (! test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
++		       ar->running_fw->fw_file.fw_features))
 +		return;
 +
 +	lockdep_assert_held(&ar->conf_mutex);
@@ -74,6 +87,7 @@ index b536fb1..23d2c49 100644
 +	if (WARN_ON(ath10k_mac_vif_chan(vif, &def)))
 +		return;
 +
++	band = def.chan->band;
 +	sband = ar->hw->wiphy->bands[band];
 +	ratemask = arvif->bitrate_mask.control[band].legacy;
 +	rates = sband->bitrates;
@@ -126,7 +140,7 @@ index b536fb1..23d2c49 100644
  static void ath10k_peer_assoc_h_ht(struct ath10k *ar,
  				   struct ieee80211_vif *vif,
  				   struct ieee80211_sta *sta,
-@@ -2580,6 +2661,8 @@ static int ath10k_peer_assoc_prepare(struct ath10k *ar,
+@@ -2580,6 +2663,8 @@ static int ath10k_peer_assoc_prepare(struct ath10k *ar,
  	ath10k_peer_assoc_h_qos(ar, vif, sta, arg);
  	ath10k_peer_assoc_h_phymode(ar, vif, sta, arg);
  
@@ -135,11 +149,12 @@ index b536fb1..23d2c49 100644
  	return 0;
  }
  
-@@ -2718,6 +2801,17 @@ static void ath10k_bss_assoc(struct ieee80211_hw *hw,
+@@ -2718,6 +2803,18 @@ static void ath10k_bss_assoc(struct ieee80211_hw *hw,
  
  	rcu_read_unlock();
  
-+	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
++	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
++		     ar->running_fw->fw_file.fw_features)) {
 +		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
 +		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
 +		 * firmware to request it.  It is a race either way, but this should make
@@ -153,11 +168,12 @@ index b536fb1..23d2c49 100644
  	ret = ath10k_wmi_peer_assoc(ar, &peer_arg);
  	if (ret) {
  		ath10k_warn(ar, "failed to run peer assoc for %pM vdev %i: %d\n",
-@@ -2820,6 +2914,17 @@ static int ath10k_station_assoc(struct ath10k *ar,
+@@ -2820,6 +2917,18 @@ static int ath10k_station_assoc(struct ath10k *ar,
  		return ret;
  	}
  
-+	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
++	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
++		     ar->running_fw->fw_file.fw_features)) {
 +		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
 +		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
 +		 * firmware to request it.  It is a race either way, but this should make
@@ -172,17 +188,19 @@ index b536fb1..23d2c49 100644
  	if (ret) {
  		ath10k_warn(ar, "failed to run peer assoc for STA %pM vdev %i: %d\n",
 diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
-index 6d229fb..b9cd219 100644
+index 6d229fb..899f5a6 100644
 --- a/drivers/net/wireless/ath/ath10k/wmi.c
 +++ b/drivers/net/wireless/ath/ath10k/wmi.c
-@@ -6643,8 +6643,20 @@ ath10k_wmi_peer_assoc_fill(struct ath10k *ar, void *buf,
+@@ -6643,8 +6643,21 @@ ath10k_wmi_peer_assoc_fill(struct ath10k *ar, void *buf,
  			   const struct wmi_peer_assoc_complete_arg *arg)
  {
  	struct wmi_common_peer_assoc_complete_cmd *cmd = buf;
 +	u32 vid = arg->vdev_id;
 +	u32 ext_flags = 0;
-+
-+	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK, ar->fw_features)) {
+ 
+-	cmd->vdev_id            = __cpu_to_le32(arg->vdev_id);
++	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
++		     ar->running_fw->fw_file.fw_features)) {
 +		/* Add some CT firmware specific stuff */
 +		vid |= (1<<31); /* ext field exists */
 +		if (arg->has_rate_overrides) {
@@ -191,8 +209,7 @@ index 6d229fb..b9cd219 100644
 +		}
 +		cmd->ext_flags= __cpu_to_le32(ext_flags);
 +	}
- 
--	cmd->vdev_id            = __cpu_to_le32(arg->vdev_id);
++
 +	cmd->vdev_id            = __cpu_to_le32(vid);
  	cmd->peer_new_assoc     = __cpu_to_le32(arg->peer_reassoc ? 0 : 1);
  	cmd->peer_associd       = __cpu_to_le32(arg->peer_aid);
