@@ -1,5 +1,5 @@
 Bottom: 99372e2eacf10133d3c46c8405c1a26e3843f465
-Top:    c97a6e5b1aba04fc4916700f219e069d1059c32e
+Top:    4de6d8d33b0e95173e59bbcfe4a016fa20735d3f
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2016-01-28 18:04:22 -0800
 
@@ -15,7 +15,7 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 ---
 
 diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 8ce58ae..4f7a07f 100644
+index 8ce58ae..5da9cd7 100644
 --- a/drivers/net/wireless/ath/ath10k/mac.c
 +++ b/drivers/net/wireless/ath/ath10k/mac.c
 @@ -8248,6 +8248,36 @@ static const struct ieee80211_iface_combination ath10k_10_4_if_comb[] = {
@@ -55,14 +55,15 @@ index 8ce58ae..4f7a07f 100644
  static void ath10k_get_arvif_iter(void *data, u8 *mac,
  				  struct ieee80211_vif *vif)
  {
-@@ -8508,9 +8538,29 @@ int ath10k_mac_register(struct ath10k *ar)
+@@ -8508,9 +8538,31 @@ int ath10k_mac_register(struct ath10k *ar)
  		}
  		break;
  	case ATH10K_FW_WMI_OP_VERSION_10_4:
 -		ar->hw->wiphy->iface_combinations = ath10k_10_4_if_comb;
 -		ar->hw->wiphy->n_iface_combinations =
 -			ARRAY_SIZE(ath10k_10_4_if_comb);
-+		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT, ar->fw_features)) {
++		if (test_bit(ATH10K_FW_FEATURE_WMI_10X_CT,
++			     ar->running_fw->fw_file.fw_features)) {
 +			ath10k_10_4_ct_if_comb[0].limits[0].max =
 +				ar->max_num_vdevs;
 +			ath10k_10_4_ct_if_comb[0].max_interfaces =
@@ -77,7 +78,8 @@ index 8ce58ae..4f7a07f 100644
 +			ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
 +
 +			/* CT firmware can do tx-sw-crypt if properly configured */
-+			if (test_bit(ATH10K_FW_FEATURE_CT_RXSWCRYPT, ar->fw_features) &&
++			if (test_bit(ATH10K_FW_FEATURE_CT_RXSWCRYPT,
++				     ar->running_fw->fw_file.fw_features) &&
 +			    ath10k_modparam_nohwcrypt)
 +				__clear_bit(IEEE80211_HW_SW_CRYPTO_CONTROL, ar->hw->flags);
 +		} else {
