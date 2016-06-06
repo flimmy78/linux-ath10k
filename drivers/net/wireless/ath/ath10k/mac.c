@@ -7953,7 +7953,8 @@ int ath10k_mac_register(struct ath10k *ar)
 			ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
 
 			/* CT firmware can do tx-sw-crypt if properly configured */
-			if (test_bit(ATH10K_FW_FEATURE_CT_RXSWCRYPT, ar->fw_features) &&
+			if (test_bit(ATH10K_FW_FEATURE_CT_RXSWCRYPT,
+				     ar->running_fw->fw_file.fw_features) &&
 			    ath10k_modparam_nohwcrypt)
 				__clear_bit(IEEE80211_HW_SW_CRYPTO_CONTROL, ar->hw->flags);
 		} else {
