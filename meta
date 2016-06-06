@@ -1,14 +1,6 @@
 Version: 1
-Previous: 720307e352715627645b1f8d8db0491797a6b422
+Previous: 66f4146cb5517bc02f35db3c2e031310ca1817ed
 Head: b66e61c7abb9a2b3c6a491ffe462c0141fc77a9f
 Applied:
-  update-64-bit-kernel-config: 8f964ca594ac08a76302506514775b095e2c1087
-  update-32-bit-kernel-config: 8fa96969f20ccb84f97f05bb1d137a28da0470d6
-  update-kernell-4-0-imix-build: b284247b71f8eea7414768d3ce97526f749cb44e
-  ath10k-allow-max-msdu-to-be: a88fa39380c8712bc2f9d0636b02af6a58e568a0
-  ath10k-register-as-sw-crypt: 616ca6b9afda0414f845c10a1318efe2c6f3c8e2
-  imx6-add-veth-macvlan-and: 35e2ed36ec53d8698c9a2b9a80dd850bfa29db7f
-  mac80211-hwsim-notify-user: 47393285eb9fc0eb2e11a778f063f7b9c87e5fd3
-  mac80211-hwsim-remove-dmesg: b66e61c7abb9a2b3c6a491ffe462c0141fc77a9f
 Unapplied:
 Hidden:
