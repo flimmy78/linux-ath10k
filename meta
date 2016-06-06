@@ -1,8 +1,8 @@
 Version: 1
-Previous: ec310956fc93e69725e7447871c9b28f410bee3d
-Head: a25978b9f983e6872436864f8eab4687221d32a1
+Previous: b71b258bd8f99a37da1572bc3c69f9cc2ba15c1e
+Head: f6aed6c632f57f4b738d3c847411803a2ae555e9
 Applied:
   ath10k-support-more-than-one: a25978b9f983e6872436864f8eab4687221d32a1
+  ath10k-print-baud-pin-for: f6aed6c632f57f4b738d3c847411803a2ae555e9
 Unapplied:
-  ath10k-print-baud-pin-for: 6ed107fcc05da01a09868386ec681f80208c8166
 Hidden:
