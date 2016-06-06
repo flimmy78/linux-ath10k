@@ -1,5 +1,5 @@
 Bottom: a461d97c588acdb78404762a22265f5392152723
-Top:    a461d97c588acdb78404762a22265f5392152723
+Top:    06d6ef7166787f1f0abcff1ff20789d3d281e20e
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2015-09-13 22:32:40 -0700
 
@@ -12,4 +12,99 @@ Signed-off-by: Ben Greear <greearb@candelatech.com>
 
 ---
 
-
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index cf22540..894fe90 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -2803,18 +2803,6 @@ static void ath10k_bss_assoc(struct ieee80211_hw *hw,
+ 
+ 	rcu_read_unlock();
+ 
+-	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
+-		     ar->running_fw->fw_file.fw_features)) {
+-		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
+-		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
+-		 * firmware to request it.  It is a race either way, but this should make
+-		 * it work more often.  Last argument is ignored by firmware.
+-		 */
+-		ath10k_wmi_peer_set_param(ar, arvif->vdev_id, ap_sta->addr,
+-					  WMI_PEER_FETCH_RC, 0);
+-		msleep(1);
+-	}
+-
+ 	ret = ath10k_wmi_peer_assoc(ar, &peer_arg);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to run peer assoc for %pM vdev %i: %d\n",
+@@ -2917,18 +2905,6 @@ static int ath10k_station_assoc(struct ath10k *ar,
+ 		return ret;
+ 	}
+ 
+-	if (test_bit(ATH10K_FW_FEATURE_CT_RATEMASK,
+-		     ar->running_fw->fw_file.fw_features)) {
+-		/* Firmware may cache rate-ctrl logic in host RAM.  Before we can set it,
+-		 * it must be DMA'd to firmware RAM.  CT Firmware offers this API to cause
+-		 * firmware to request it.  It is a race either way, but this should make
+-		 * it work more often.  Last argument is ignored by firmware.
+-		 */
+-		ath10k_wmi_peer_set_param(ar, arvif->vdev_id, sta->addr,
+-					  WMI_PEER_FETCH_RC, 0);
+-		msleep(1);
+-	}
+-
+ 	ret = ath10k_wmi_peer_assoc(ar, &peer_arg);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to run peer assoc for STA %pM vdev %i: %d\n",
+@@ -5848,6 +5824,7 @@ static void ath10k_sta_rc_update_wk(struct work_struct *wk)
+ 	}
+ 
+ 	if (changed & IEEE80211_RC_SUPP_RATES_CHANGED ||
++	    changed & IEEE80211_RC_SMPS_CHANGED ||
+ 	    changed & IEEE80211_RC_NSS_CHANGED) {
+ 		ath10k_dbg(ar, ATH10K_DBG_MAC, "mac update sta %pM supp rates/nss\n",
+ 			   sta->addr);
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index 899f5a6..bebd809 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -3126,6 +3126,9 @@ ath10k_wmi_op_pull_peer_kick_ev(struct ath10k *ar, struct sk_buff *skb,
+ 	skb_pull(skb, sizeof(*ev));
+ 	arg->mac_addr = ev->peer_macaddr.addr;
+ 
++	/* CT Firmware may sneak in some info in the un-used space. */
++	arg->unused_hi = __le32_to_cpu(ev->peer_macaddr.word1) >> 16;
++
+ 	return 0;
+ }
+ 
+@@ -3154,6 +3157,19 @@ void ath10k_wmi_event_peer_sta_kickout(struct ath10k *ar, struct sk_buff *skb)
+ 		goto exit;
+ 	}
+ 
++	if (arg.unused_hi & (1<<15)) {
++		/* CT Firmware is trying to tell us that assoc attempt failed,
++		 * most likely because ratectrl object could not be found in local
++		 * cache (it was probably still written out to the host RAM cache).
++		 */
++		ath10k_warn(ar, "kickout:  assoc failed, no txRateCtl found in local cache for STA %pM\n",
++			    arg.mac_addr);
++		/* It would be nice if we could just re-flush to the firmware, but I don't
++		 * see a clean way do handle that..so just warn and report a kickout event.
++		 * At least sometimes that may cause peer to be reconfigured...
++		 */
++	}
++
+ 	ieee80211_report_low_ack(sta, 10);
+ 
+ exit:
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index b2c312d..ec0a4b6 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -6316,6 +6316,7 @@ struct wmi_vdev_start_ev_arg {
+ 
+ struct wmi_peer_kick_ev_arg {
+ 	const u8 *mac_addr;
++	u16 unused_hi; /* top 16 bits of 47-32, used to pass info back to host by CT firmware */
+ };
+ 
+ struct wmi_swba_ev_arg {
