@@ -1,0 +1,28 @@
+Bottom: e5f26af17443895233dc27b2a9ebee3c1a75c500
+Top:    bfc029dd42aa4d5146e098261c5d1e316431377a
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2015-02-24 15:56:07 -0800
+
+mac80211-hwsim: remove dmesg spam about get-survey.
+
+This message just fills up dmesg and/or kernel logs and does
+not provide any useful information.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+
+
+---
+
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 8481105..4789626 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -1794,7 +1794,7 @@ static int mac80211_hwsim_get_survey(
+ {
+ 	struct ieee80211_conf *conf = &hw->conf;
+ 
+-	wiphy_debug(hw->wiphy, "%s (idx=%d)\n", __func__, idx);
++	/* wiphy_debug(hw->wiphy, "%s (idx=%d)\n", __func__, idx); */
+ 
+ 	if (idx != 0)
+ 		return -ENOENT;
