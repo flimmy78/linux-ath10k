@@ -1,6 +1,6 @@
 Version: 1
-Previous: f97d32393c223aae5f859d678039cfb85c3acd6d
-Head: e2aa34076bf723c3a15a0d357fdf5d2637e83ca6
+Previous: 632dfed9e29b3d30fa7eec3547ddca289a333046
+Head: 2fa3fe247b38bb20ac2e08c2c9e6a0f020715b12
 Applied:
   32-bit-kernel-config-for-4-2: 7b0e11cb1e947d1a66d4155aa8786b5f4e837c6a
   ath10k-support-setting-debug: 675abadb58263adc899608fe6893a630cc56bd8e
@@ -11,7 +11,6 @@ Applied:
   ath10k-support-override-for: a70276dc7ea1307aca220026b5c72567ec1b2616
   ath10k-support-ct_ratemask-to: 6f1c23bfdcc2ebb9573fc4eb5f2b86ac5a0b9e5c
   ath10k-improve-rc-cache: 2fa3fe247b38bb20ac2e08c2c9e6a0f020715b12
-  refresh-temp: e2aa34076bf723c3a15a0d357fdf5d2637e83ca6
 Unapplied:
   ath10k-fix-b-g-phy-mode: 3dedb2a084bd58ae7abd38b5c2b9873dc731128c
 Hidden:
