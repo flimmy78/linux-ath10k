@@ -1,5 +1,5 @@
 Bottom: d6ed4493ba22cd5342588c344fd9cc404f934396
-Top:    09bb478a0c76a6cafb7b7e882519a191d5c452ab
+Top:    98f6f88af0a944a1b73ff98699078c3cc6093054
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2015-10-14 11:22:46 -0700
 
@@ -31,7 +31,7 @@ index 47ba428..f0efa0f0 100644
  	unsigned long timeout;
  	int tries;
 diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 7aaac1a..933dbb8 100644
+index 7aaac1a..aa4284d 100644
 --- a/net/mac80211/mlme.c
 +++ b/net/mac80211/mlme.c
 @@ -628,6 +628,8 @@ static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
@@ -68,7 +68,7 @@ index 7aaac1a..933dbb8 100644
 +		int q = 0;
 +
 +		/* Skip CCK rates for 5Ghz band */
-+		if (band == IEEE80211_BAND_5GHZ)
++		if (band == NL80211_BAND_5GHZ)
 +			msk = msk << 4;
 +
 +#if 0
