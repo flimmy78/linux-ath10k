@@ -1,4 +1,4 @@
-Bottom: 09bb478a0c76a6cafb7b7e882519a191d5c452ab
+Bottom: 98f6f88af0a944a1b73ff98699078c3cc6093054
 Top:    cb7ae1732ca0d00c18b439869a6acc8d98fc6d1a
 Author: Ben Greear <greearb@candelatech.com>
 Date:   2015-09-22 17:14:05 -0700
@@ -45,16 +45,3 @@ index 1850a78..a5930f4 100644
  
  	trace_drv_set_bitrate_mask(local, sdata, mask);
  	if (local->ops->set_bitrate_mask)
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 933dbb8..aa4284d 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -4729,7 +4729,7 @@ int ieee80211_mgd_assoc(struct ieee80211_sub_if_data *sdata,
- 		int q = 0;
- 
- 		/* Skip CCK rates for 5Ghz band */
--		if (band == IEEE80211_BAND_5GHZ)
-+		if (band == NL80211_BAND_5GHZ)
- 			msk = msk << 4;
- 
- #if 0
