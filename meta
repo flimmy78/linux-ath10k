@@ -1,6 +1,11 @@
 Version: 1
-Previous: e81c2693851d47353a4dd16a80ddd722964ca294
+Previous: 1b9bb5bbccb2e913f6f7927c19f0eca88ff538d1
 Head: a4e52b77bfa3d5b2bbaff2d43bce465dd648d4e5
 Applied:
+  ath10k-fix-ct-ratemask: a6bd707682b391a68f27d21646514b03b2dc0d43
+  wifi-support-65-tx-queues: 302c8927151b39268dc11fb52dea190aa32f457d
+  mac80211-take-bitrates-into: b7f967cddb33cacb2acf6678e16a569aa23701fb
+  mac80211-ensure-association: 0028188b18dd52ce5fa9e1d73627674b24799f4e
+  mac80211-add-some-debugging: a4e52b77bfa3d5b2bbaff2d43bce465dd648d4e5
 Unapplied:
 Hidden:
