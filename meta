@@ -1,11 +1,6 @@
 Version: 1
-Previous: 682c1d9af4e7176cf54e26b14376e7f0b0c07d1c
+Previous: d2e17cebaaa020ef64082f710804f26e8e08750d
 Head: 4b79d67f5f3b9001c30fa61ce75b8ace0caa095f
 Applied:
-  ath10k-use-non-static-if: 040b082f95c56ff121e393826a4e4de18f92585f
-  ath10k-fix-dynamic: ccafef4e2515245b5f67eda3f1a424877eeb0630
-  wifi-add-warning-messages: d576d2e084eb2f37f0d4ea8632db53bcdb44cc3d
-  ath10k-fix-kernel-panic-move: 2e4a4fbd930a27b9bf6e5b6bbd72702868be9fce
-  add-note-about-fixing-probe: 4b79d67f5f3b9001c30fa61ce75b8ace0caa095f
 Unapplied:
 Hidden:
