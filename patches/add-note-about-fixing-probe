@@ -1,0 +1,21 @@
+Bottom: da12dc815f31142ca81c3d1ee74e89fde7bae346
+Top:    d138b9104cf4b5b994f3649921f4864c9162b489
+Author: Ben Greear <greearb@candelatech.com>
+Date:   2016-05-02 09:57:52 -0700
+
+Add note about fixing probe requests MCS settings.
+
+
+---
+
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 583ef65..3a21225 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -2468,6 +2468,7 @@ u8 *ieee80211_ie_build_ht_cap(u8 *pos, struct ieee80211_sta_ht_cap *ht_cap,
+ 			IEEE80211_HT_AMPDU_PARM_DENSITY_SHIFT);
+ 
+ 	/* MCS set */
++	/* TODO:  Allow over-riding the mcs set (probe requests) */
+ 	memcpy(pos, &ht_cap->mcs, sizeof(ht_cap->mcs));
+ 	pos += sizeof(ht_cap->mcs);
